@@ -1,8 +1,8 @@
 <x-guest-layout>
     <h1 class="font-semibold text-xl text-gray-800 leading-tight">Editing teams information</h1>
 </br>
-    <form method="POST" action="{{ route('players',  ['teamslug' =>
-$teams->vecums]) }}">
+    <form method="POST" action="{{ route('teams.show',  ['id' =>
+$teams->id]) }}">
         @csrf
 
 

@@ -9,9 +9,6 @@ class Komanda extends Model
 {
     use HasFactory;
 
-    public function pazinojums(){
-        return $this->hasMany(Pazinojums::class);
-    }
     public function speletajs(){
         return $this->hasMany(Speletajs::class);
         }
@@ -19,4 +16,7 @@ class Komanda extends Model
     {
          return $this->belongsTo( related:User::class);
     }
+    public function trenini(){
+        return $this->hasMany(Trenins::class);
+        }
 }

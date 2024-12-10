@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Komanda;
+use App\Http\Controllers\TeamsController;
 use Illuminate\Support\Facades\Gate;
 class TeamsController extends Controller
 {
@@ -19,16 +20,7 @@ class TeamsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        
-        if (Gate::denies('is-owner')){
-            abort(403);
-        }
-        return view('test_team');
-        
-    }
-
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -40,7 +32,7 @@ class TeamsController extends Controller
         $team->coach_id = $request->input('coach_id');
         $team->save();
         $action = action([TeamsController::class, 'index']);
-        return redirect($action);
+        return redirect()->route('teams')->with('success', 'Team created successfully.');
     }
 
     /**
