@@ -15,7 +15,9 @@ class CommentsController extends Controller
     public function index($teamslug)
     {
         
-        $team = Komanda::where('vecums','=', $teamslug)->first();
+        $team = Komanda::where('vecums', '=', $teamslug)
+               ->where('id', '=', $id)
+               ->first();
  $comments = $team->vizualieMateriali()->get();
 
  return view('comments', ['team' => $team, 'comments' =>
@@ -40,7 +42,7 @@ $comments]);
     public function store(Request $request)
     {
         $comments = new VizualaisMaterials();
-        $comments->coach_id=$request->input('coach_id');
+        $comments->coach_id=auth()->id();
         $comments->komandas_id=$request->input('komandas_id');
         $comments->komentars=$request->input('komentars');
         $comments->save();
