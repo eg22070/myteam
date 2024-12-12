@@ -9,10 +9,6 @@ class Speletajs extends Model
 {
     use HasFactory;
 
-    public function vizMat(){
-        return $this->hasMany(VizMat::class);
-    }
-
     public function komanda()
     {
     return $this->belongsTo(Komanda::class);

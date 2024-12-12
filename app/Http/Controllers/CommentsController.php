@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Speletajs;
-use App\Models\VizMat;
+use App\Models\Komanda;
+use App\Models\VizualaisMaterials;
 use Illuminate\Support\Facades\Gate;
 
 class CommentsController extends Controller
@@ -12,25 +12,26 @@ class CommentsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($id)
+    public function index($teamslug)
     {
-        $player = Speletajs::where('id','=', $id)->first();
- $comments = $player->vizMat()->get();
+        
+        $team = Komanda::where('vecums','=', $teamslug)->first();
+ $comments = $team->vizualieMateriali()->get();
 
- return view('comments', ['player' => $player, 'comments' =>
+ return view('comments', ['team' => $team, 'comments' =>
 $comments]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($id)
+    public function create($teamslug)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
-        $player = Speletajs::where('id','=', $id)->first();
-        return view('comment_new', compact('player'));
+        $team = Komanda::where('vecums','=', $teamslug)->first();
+        return view('comment_new', compact('team'));
     }
 
     /**
@@ -38,17 +39,15 @@ $comments]);
      */
     public function store(Request $request)
     {
-        $comments = new VizMat();
+        $comments = new VizualaisMaterials();
         $comments->coach_id=$request->input('coach_id');
-        $comments->speletajs_id=$request->input('speletajs_id');
+        $comments->komandas_id=$request->input('komandas_id');
         $comments->komentars=$request->input('komentars');
-        $comments->virsraksts=$request->input('virsraksts');
-        $comments->datums=$request->input('datums');
         $comments->save();
 
-        $player = Speletajs::findOrFail($request->speletajs_id);
+        $team = Komanda::findOrFail($request->komandas_id);
  $action = action([CommentsController::class, 'index'], ['id' =>
-$player->id]);
+$team->id]);
  return redirect($action);
     }
 
@@ -84,7 +83,7 @@ $player->id]);
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
-        VizMat::findOrfail($id)->delete();
-        return redirect('players/{id}/comments/');
+        VizualaisMaterials::findOrfail($id)->delete();
+        return redirect('{teamslug}/players/comments');
     }
 }

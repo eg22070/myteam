@@ -9,6 +9,10 @@ class Komanda extends Model
 {
     use HasFactory;
 
+    public function vizualieMateriali(){
+        return $this->hasMany(VizualaisMaterials::class);
+    }
+
     public function speletajs(){
         return $this->hasMany(Speletajs::class);
         }

@@ -54,11 +54,11 @@ Route::post('/players/{id}', [PlayersController::class, 'update']);
 Route::get('/players/{id}', [PlayersController::class, 'show'])->name('players.show');
 
 
-Route::resource('/players/{id}/comments', CommentsController::class, ['except' => ['index', 'create']]);
-Route::get('/players/{id}/comments', [CommentsController::class, 'index'])->name('comment');
-Route::get('/players/{id}/newcomment', [CommentsController::class,'create'])->name('comment.create');
-Route::post('/players/{id}/comments', [CommentsController::class, 'store']);
-Route::delete('/players/{id}/comments', [App\Http\Controllers\CommentsController::class,'destroy'])->name('comment.destroy'); 
+Route::resource('/{teamslug}/players/comments', CommentsController::class, ['except' => ['index', 'create']]);
+Route::get('/{teamslug}/players/comments', [CommentsController::class, 'index'])->name('comment');
+Route::get('/{teamslug}/players/newcomment', [CommentsController::class,'create'])->name('comment.create');
+Route::post('/{teamslug}/players/comments', [CommentsController::class, 'store']);
+Route::delete('/{teamslug}/players/comments', [App\Http\Controllers\CommentsController::class,'destroy'])->name('comment.destroy'); 
 
 // Main calendar view
 Route::get('/calendar', [TrainingController::class, 'index'])->name('calendar');

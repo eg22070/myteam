@@ -14,8 +14,8 @@ class VizMat extends Model
         return $this->belongsTo( related:User::class);
     }
 
-    public function speletajs()
+    public function komanda()
     {
-        return $this->belongsTo(Speletajs::class);
+        return $this->belongsTo(Komanda::class);
     }
 }
