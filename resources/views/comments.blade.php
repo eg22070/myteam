@@ -3,7 +3,7 @@
         <h1 class="font-semibold text-xl text-gray-800 leading-tight">
         Trenera norādījumi komandai
 </h1>
-<p><a href="{{route('players.show', ['id' => $player->id]) }}">Back to profile</a></p>
+<p><a href="{{route('teams.show', ['id' => $team->id]) }}">Back to profile</a></p>
     </x-slot>
 
     <div class="py-12">
