@@ -12,16 +12,13 @@ class CommentsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($teamslug)
+    public function index($id)
     {
-        
-        $team = Komanda::where('vecums', '=', $teamslug)
-               ->where('id', '=', $id)
-               ->first();
- $comments = $team->vizualieMateriali()->get();
+        $team = Komanda::findOrFail($id);
+    $comments = $team->vizualieMateriali()->get();
 
- return view('comments', ['team' => $team, 'comments' =>
-$comments]);
+    return view('comments', ['team' => $team, 'comments' => $comments]);
+        
     }
 
     /**
@@ -39,7 +36,7 @@ $comments]);
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $teamslug)
     {
         $comments = new VizualaisMaterials();
         $comments->coach_id=auth()->id();
@@ -48,8 +45,7 @@ $comments]);
         $comments->save();
 
         $team = Komanda::findOrFail($request->komandas_id);
- $action = action([CommentsController::class, 'index'], ['id' =>
-$team->id]);
+ $action = action([CommentsController::class, 'index'], ['vecums', '=', $teamslug]);
  return redirect($action);
     }
 
@@ -86,6 +82,6 @@ $team->id]);
             abort(403);
         }
         VizualaisMaterials::findOrfail($id)->delete();
-        return redirect('{teamslug}/players/comments');
+        return redirect('team/comments');
     }
 }

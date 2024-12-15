@@ -1,7 +1,7 @@
 <x-app-layout>
 <x-slot name="header">
         <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-        {{ $team->vecums }} komandas trenera norādījumi 
+        Trenera norādījumi komandai
 </h1>
 <p><a href="{{route('players.show', ['id' => $player->id]) }}">Back to profile</a></p>
     </x-slot>
@@ -26,7 +26,7 @@
  <div class="flex items-center justify-end mt-4">
  @can('is-coach-or-owner')
  <form method="POST"
- action="{{ route('comment.destroy', ['teamslug' => $team->vecums]) }}">
+ action="{{ route('comment.destroy', ['id' => $comment->id]) }}">
 @csrf
 @method('DELETE')
 <x-primary-button class="ml-4">Delete comment</x-primary-button>
