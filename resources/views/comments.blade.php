@@ -13,7 +13,7 @@
             <h2 class="border-sky-400 rounded-md font-semibold text-xl text-gray-800 leading-tight">Coach comments</h2></br>
             @if (isset($comments) && count($comments) < 1)
 
- <p class='error'>There are no comments for this player from coach!</p>
+ <p class='error'>There are no comments for this team from coach!</p>
  @else
 
  @foreach ($comments as $comment)
