@@ -16,9 +16,10 @@ class PlayersController extends Controller
     {
         $teams = Komanda::where('vecums','=', $teamslug)->first();
  $player = $teams->speletajs()->get();
+    $comments = $teams->vizualieMateriali()->get();
 
  return view('players', ['teams' => $teams, 'player' =>
-$player]);
+$player, 'comments' => $comments]);
 
     }
 

@@ -58,7 +58,7 @@ Route::resource('team/comments', CommentsController::class, ['except' => ['index
 Route::get('team/{id}/comments', [CommentsController::class, 'index'])->name('comment');
 Route::get('team/newcomment', [CommentsController::class,'create'])->name('comment.create');
 Route::post('team/comments', [CommentsController::class, 'store']);
-Route::delete('comments/{id}', [App\Http\Controllers\CommentsController::class,'destroy'])->name('comment.destroy'); 
+Route::delete('team/comments/{id}', [App\Http\Controllers\CommentsController::class,'destroy'])->name('comment.destroy'); 
 
 // Main calendar view
 Route::get('/calendar', [TrainingController::class, 'index'])->name('calendar');
