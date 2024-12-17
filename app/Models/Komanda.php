@@ -10,7 +10,7 @@ class Komanda extends Model
     use HasFactory;
 
     public function vizualieMateriali(){
-        return $this->hasMany(VizualaisMaterials::class);
+        return $this->hasMany(VizualaisMaterials::class, 'komandas_id');
     }
 
     public function speletajs(){

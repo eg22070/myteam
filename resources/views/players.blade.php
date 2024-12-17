@@ -86,7 +86,7 @@
                         <p>{{ $comment->komentars }}</p>
                         @can('is-coach-or-owner')
  <form method="POST"
- action="{{ route('comment.destroy', ['id' => $comment->id]) }}">
+ action="{{ route('comment.destroy', ['id' => $comment->id, 'teamslug' => $teams->vecums]) }}">
 @csrf
 @method('DELETE')
 <x-primary-button class="ml-4">Delete comment</x-primary-button>

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <h1 class="font-semibold text-xl text-gray-800 leading-tight">Adding comment to the players profile</h1>
 </br>
-    <form method="POST" action="{{ route('comment',  ['id' => $team->id]) }}">
+<form action="{{ route('comments.store', ['teamslug' => $team->vecums]) }}" method="POST">
         @csrf
         <div>
             <x-input-label for="komentars" :value="__('Comment')" />

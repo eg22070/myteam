@@ -16,6 +16,6 @@ class VizualaisMaterials extends Model
 
     public function komanda()
     {
-        return $this->belongsTo(Komanda::class);
+        return $this->belongsTo(Komanda::class, 'komandas_id');
     }
 }

@@ -45,8 +45,7 @@ class CommentsController extends Controller
         $comments->save();
 
         $team = Komanda::findOrFail($request->komandas_id);
- $action = action([CommentsController::class, 'index'], ['vecums', '=', $teamslug]);
- return redirect($action);
+        return redirect()->route('players', ['teamslug' => $teamslug]);
     }
 
     /**
@@ -76,12 +75,12 @@ class CommentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, $teamslug)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
         VizualaisMaterials::findOrfail($id)->delete();
-        return redirect('team/comments');
+        return redirect()->route('players', ['teamslug' => $teamslug]);
     }
 }
