@@ -7,6 +7,7 @@ use App\Http\Controllers\PlayersController;
 use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\PazinojumiController;
+use App\Http\Controllers\SpelesController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -47,24 +48,24 @@ Route::get('/teams/{id}', [PlayersController::class, 'show'])->name('teams.show'
 Route::delete('/teams/{id}', [App\Http\Controllers\TeamsController::class,'destroy'])->name('teams.destroy'); 
 
 Route::resource('/players', PlayersController::class, ['except' => ['index', 'create', 'update']]);
-Route::get('/{teamslug}/players', [PlayersController::class, 'index'])->name('players');
+Route::get('/{teamslug}/players', [PlayersController::class, 'index'])->name('players.index');
 Route::get('{teamslug}/players/create', [PlayersController::class,'create']);
 Route::post('{teamslug}/players', [PlayersController::class, 'store']);
 Route::post('/players/{id}', [PlayersController::class, 'update']);
 Route::get('/players/{id}', [PlayersController::class, 'show'])->name('players.show');
+Route::delete('{teamslug}/players/{id}', [PlayersController::class, 'destroy'])->name('players.destroy');
 
 
 Route::resource('team/comments', CommentsController::class, ['except' => ['index', 'create']]);
 Route::get('team/{id}/comments', [CommentsController::class, 'index'])->name('comment');
-<<<<<<< HEAD
 Route::get('team/{teamslug}/newcomment', [CommentsController::class,'create'])->name('comment.create');
 Route::post('/teams/{teamslug}/comments', [CommentsController::class, 'store'])->name('comments.store');
 Route::delete('/teams/{teamslug}/comments/{id}', [CommentsController::class, 'destroy'])->name('comment.destroy');
-=======
-Route::get('team/newcomment', [CommentsController::class,'create'])->name('comment.create');
-Route::post('team/comments', [CommentsController::class, 'store']);
-Route::delete('team/comments/{id}', [App\Http\Controllers\CommentsController::class,'destroy'])->name('comment.destroy'); 
->>>>>>> eac80f99a06271a670cc95d893905a2a38a74cb8
+
+
+Route::get('{teamslug}/games', [SpelesController::class, 'index'])->name('games.index');
+Route::post('{teamslug}/games', [SpelesController::class, 'store'])->name('games.store');
+
 
 // Main calendar view
 Route::get('/calendar', [TrainingController::class, 'index'])->name('calendar');

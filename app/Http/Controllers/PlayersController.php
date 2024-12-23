@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Komanda;
 use App\Models\Speletajs;
+use App\Models\VizualaisMaterials;
 use App\Http\Controllers\PlayersController;
 use Illuminate\Support\Facades\Gate;
 class PlayersController extends Controller
@@ -15,11 +16,16 @@ class PlayersController extends Controller
     public function index($teamslug)
     {
         $teams = Komanda::where('vecums','=', $teamslug)->first();
- $player = $teams->speletajs()->get();
-    $comments = $teams->vizualieMateriali()->get();
+        if (!$teams) {
+            \Log::info("No team found for teamslug: $teamslug");
+            abort(404, 'Team not found.');
+        }
+        $player = $teams->speletajs()->get();
+        $comments = $teams->vizualieMateriali()->get();
+        $games = $teams->speles()->get();
 
- return view('players', ['teams' => $teams, 'player' =>
-$player, 'comments' => $comments]);
+        return view('players', ['teams' => $teams, 'player' =>
+        $player, 'comments' => $comments, 'games' => $games]);
 
     }
 
@@ -97,12 +103,12 @@ $teams->vecums]);
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, $teamslug)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
         Speletajs::findOrfail($id)->delete();
-        return redirect('{teamslug}/players/');       
+        return redirect()->route('players.index', ['teamslug' => $teamslug])->with('success', 'Player deleted successfully.');     
     }
 }
