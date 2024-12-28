@@ -8,6 +8,8 @@ use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\PazinojumiController;
 use App\Http\Controllers\SpelesController;
+use App\Http\Controllers\VartiController;
+use App\Http\Controllers\ZinasController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}', [PazinojumiController::class, 'update']);
 });
 Route::get('/notifications', [PazinojumiController::class, 'index'])->name('notifications');
-Route::get('/tnotifications/{id}', [PazinojumiController::class, 'show'])->name('notifications.show');
+Route::get('/notifications/{id}', [PazinojumiController::class, 'show'])->name('notifications.show');
 Route::delete('/notifications/{id}', [App\Http\Controllers\PazinojumiController::class,'destroy'])->name('notifications.destroy');
 
 Route::middleware('auth')->group(function () {
@@ -48,7 +50,7 @@ Route::get('/teams/{id}', [PlayersController::class, 'show'])->name('teams.show'
 Route::delete('/teams/{id}', [App\Http\Controllers\TeamsController::class,'destroy'])->name('teams.destroy'); 
 
 Route::resource('/players', PlayersController::class, ['except' => ['index', 'create', 'update']]);
-Route::get('/{teamslug}/players', [PlayersController::class, 'index'])->name('players.index');
+Route::get('/{teamslug}/players', [PlayersController::class, 'index'])->name('players');
 Route::get('{teamslug}/players/create', [PlayersController::class,'create']);
 Route::post('{teamslug}/players', [PlayersController::class, 'store']);
 Route::post('/players/{id}', [PlayersController::class, 'update']);
@@ -65,6 +67,19 @@ Route::delete('/teams/{teamslug}/comments/{id}', [CommentsController::class, 'de
 
 Route::get('{teamslug}/games', [SpelesController::class, 'index'])->name('games.index');
 Route::post('{teamslug}/games', [SpelesController::class, 'store'])->name('games.store');
+Route::get('{teamslug}/games/{id}', [SpelesController::class, 'show'])->name('games.show');
+Route::post('{teamslug}/games/{id}', [SpelesController::class, 'update']);
+Route::delete('{teamslug}/games/{id}', [SpelesController::class, 'destroy'])->name('speles.destroy');
+
+Route::get('{teamslug}/varti', [VartiController::class, 'index'])->name('varti.index');
+Route::post('{teamslug}/varti', [VartiController::class, 'store'])->name('varti.store');
+Route::delete('{teamslug}/varti/{id}', [VartiController::class, 'destroy'])->name('varti.destroy');
+
+
+Route::get('/chat', [ZinasController::class, 'index'])->name('chat');
+Route::post('/chat/store', [ZinasController::class, 'store'])->name('chat.store');
+Route::get('/chat/{user}', [ZinasController::class, 'show'])->name('chat.show');
+Route::delete('/chat/{message}', [ZinasController::class, 'destroy'])->name('chat.destroy');
 
 
 // Main calendar view

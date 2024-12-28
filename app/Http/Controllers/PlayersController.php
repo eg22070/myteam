@@ -20,12 +20,18 @@ class PlayersController extends Controller
             \Log::info("No team found for teamslug: $teamslug");
             abort(404, 'Team not found.');
         }
-        $player = $teams->speletajs()->get();
-        $comments = $teams->vizualieMateriali()->get();
-        $games = $teams->speles()->get();
+        $player = $teams->speletajs;
 
-        return view('players', ['teams' => $teams, 'player' =>
-        $player, 'comments' => $comments, 'games' => $games]);
+        if ($player instanceof \Illuminate\Database\Eloquent\Collection) {
+            \Log::info("Players fetched: " . $player->count());
+        } else {
+            \Log::info("Players is not a collection.");
+        }
+
+        $comments = $teams->vizualieMateriali()->get();
+        $games = $teams->speles()->with(['varti.VartuGuvejs', 'varti.assist'])->get();
+
+        return view('players', compact('teams', 'player', 'comments', 'games'));
 
     }
 
@@ -103,12 +109,12 @@ $teams->vecums]);
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, $teamslug)
+    public function destroy($teamslug, string $id)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
         Speletajs::findOrfail($id)->delete();
-        return redirect()->route('players.index', ['teamslug' => $teamslug])->with('success', 'Player deleted successfully.');     
+        return redirect()->route('players', ['teamslug' => $teamslug])->with('success', 'Player deleted successfully.');     
     }
 }

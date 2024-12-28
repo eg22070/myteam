@@ -75,7 +75,7 @@ class CommentsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, $teamslug)
+    public function destroy($teamslug, string $id)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);

@@ -10,7 +10,7 @@ class Speles extends Model
     use HasFactory;
     public function varti()
     {
-        return $this->hasMany(Varti::class);
+        return $this->hasMany(Varti::class, 'speles_id');
     }
     public function komanda()
     {

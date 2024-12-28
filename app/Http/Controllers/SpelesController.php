@@ -28,11 +28,6 @@ class SpelesController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * $varti = new Varti();
-        *$varti->speles_id=$request->input('speles_id');
-        *$varti->vartuGuveja_id=$request->input('vartuGuveja_id');
-        *$varti->speles_id=$request->input('speles_id');
-        *$varti->minute=$request->input('minute');
      */
     public function store(Request $request, $teamslug)
     {
@@ -49,9 +44,9 @@ class SpelesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($teamslug, string $id)
     {
-        //
+
     }
 
     /**
@@ -65,15 +60,21 @@ class SpelesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $teamslug, string $id)
     {
-        //
+        $speles = Speles::findOrFail($id);
+        $speles->komanda_id=$request->input('komanda_id');
+        $speles->pretinieks=$request->input('pretinieks');
+        $speles->rezultats=$request->input('rezultats');
+        $speles->save();
+        return redirect()->route('players', ['teamslug' => $teamslug])
+                     ->with('success', 'Game has been updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, $teamslug)
+    public function destroy($teamslug, string $id)
     {
         if (Gate::denies('is-coach-or-owner')){
             abort(403);

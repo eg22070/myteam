@@ -14,7 +14,7 @@ class Komanda extends Model
     }
 
     public function speletajs(){
-        return $this->hasMany(Speletajs::class, 'komanda_id');
+        return $this->hasMany(Speletajs::class);
         }
     public function speles(){
         return $this->hasMany(Speles::class, 'komanda_id');

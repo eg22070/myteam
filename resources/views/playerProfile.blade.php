@@ -3,7 +3,6 @@
         <h1 class="font-semibold text-xl text-gray-800 leading-tight">
         {{ $player->vards }} {{ $player->uzvards }}
         </h1>
-        
     </x-slot>
 
     <div class="py-12">

@@ -55,9 +55,9 @@ class PazinojumiController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $team= Pazinojums::findOrFail($id);
+        $pazinojums= Pazinojums::findOrFail($id);
         $pazinojums->virsraksts = $request->input('virsraksts');
-        $pazinojums->coach_id = auth()->id()('owner_id');
+        $pazinojums->owner_id = auth()->id();
         $pazinojums->pazinojums = $request->input('pazinojums');
         $pazinojums->datums = $request->input('datums');
         $pazinojums->save();
