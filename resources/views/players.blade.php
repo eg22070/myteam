@@ -5,7 +5,9 @@
         </h2>
         <p><a href="{{ route('teams') }}">--Back to all teams</a></p>
     </x-slot>
-
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class=" grid grid-cols-2 gap-10  overflow-hidden ">
@@ -51,7 +53,7 @@
  </br>
  </br>
 
- @foreach ($player as $player)
+ @foreach ($players as $player)
   <div class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900">
   <div>
   <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{route('players.show', ['id' => $player->id]) }}">{{ $player->vards }} {{ $player->uzvards }}</a></h2>
@@ -226,34 +228,31 @@
                     <input type="hidden" name="speles_id" value="{{ $game->id }}">
                     <label for="vartuGuveja_id">Player (Goal Scorer):</label>
                     <select name="vartuGuveja_id" required>
-                        @foreach($player as $goalPlayer)
-                            <option value="{{ $goalPlayer->id }}">{{ $goalPlayer->vards }} {{ $goalPlayer->uzvards }}</option>
-                        @endforeach
+                    @foreach($players as $goalPlayer)
+                        <option value="{{ $goalPlayer->id }}">{{ $goalPlayer->vards }} {{ $goalPlayer->uzvards }}</option>
+                    @endforeach
                     </select>
                     <label for="assist_id">Player (Assist):</label>
-                    <select name="assist_id" required>
+                    <select name="assist_id">
                         <option value="">None</option>
-                        @foreach($player as $assistPlayer)
+                        @foreach($players as $assistPlayer)
                             <option value="{{ $assistPlayer->id }}">{{ $assistPlayer->vards }} {{ $assistPlayer->uzvards }}</option>
                         @endforeach
                     </select>
                     <label for="minute">Minute:</label>
                     <input type="number" name="minute" required>
-
                     <button type="submit" class="btn btn-success">Save Goal</button>
                 </form>
             </div>
-        </div>
-</div>
 
-<script>
-function toggleGoalForm(gameId) {
-    const form = document.getElementById(`goalForm-${gameId}`);
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-</script>
+        <script>
+        function toggleGoalForm(gameId) {
+            const form = document.getElementById(`goalForm-${gameId}`);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+        </script>
                         @can('is-coach-or-owner')
-                            <button type="button" class="inline-flex items-center justify-center w-8 h-8 bg-gray-800 border border-gray-500 rounded-md hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" id="toggleEditGameFormButton">
+                            <button type="button" class="inline-flex items-center justify-center w-8 h-8 bg-gray-800 border border-gray-500 rounded-md hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 toggleEditGameFormButton" data-game-id="{{ $game->id }}">
                                 <img src="{{ asset('images/pencil-edit-button.jpg') }}" alt="Edit Game result" class="w-full h-full object-cover" style="cursor: pointer;" />
                             </button>
                             <form method="POST"
@@ -262,7 +261,7 @@ function toggleGoalForm(gameId) {
                             @method('DELETE')
                             <x-primary-button class="ml-4">Delete game result</x-primary-button>
                             </form>
-                            <div id="editGameForm" style="display: none; margin-top: 10px;">
+                            <div id="editGameForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
                             <form method="POST" action="{{ route('games.show', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
                                 @csrf
                                 <div class="form-group">
@@ -281,17 +280,21 @@ function toggleGoalForm(gameId) {
                         </div>
                             
                         @endcan
-                        <script>
-                        document.getElementById('toggleEditGameFormButton').addEventListener('click', function() {
-                            var form = document.getElementById('editGameForm');
-                            if (form.style.display === 'none') {
-                                form.style.display = 'block';
-                            } else {
-                                form.style.display = 'none';
-                            }
+                        
+                    @endforeach
+                    <script>
+                        document.querySelectorAll('.toggleEditGameFormButton').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const gameId = this.dataset.gameId;
+                                const form = document.getElementById(`editGameForm-${gameId}`);
+                                if (form.style.display === 'none' || form.style.display === '') {
+                                    form.style.display = 'block'; // Show the form
+                                } else {
+                                    form.style.display = 'none'; // Hide the form
+                                }
+                            });
                         });
                     </script>
-                    @endforeach
                 @endif
                 <!-- Form to Add New Game -->
                 @can('is-coach-or-owner')
@@ -325,7 +328,7 @@ function toggleGoalForm(gameId) {
             </div>
         </div>
     </div>
-</div>
+</div>    
  <!-- Add Player Modal -->
  <div class="modal fade" id="addPlayerModal" tabindex="-1" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
         <div class="modal-dialog">

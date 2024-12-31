@@ -19,6 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'surname',
         'email',
         'password',
         'role',
@@ -51,5 +52,8 @@ class User extends Authenticatable
     }
     public function vizMat(){
         return $this->hasMany(VizMat::class);
+    }
+    public function zinas(){
+        return $this->hasMany(Zinas::class);
     }
 }

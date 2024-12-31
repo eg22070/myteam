@@ -2,52 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ZinasBroadcast;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
+use App\Events\ZinasSutit;
+use App\Http\Controllers\Controller;
+use App\Models\Zinas;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ZinasController extends Controller
+class ChatController extends Controller
 {
-    public function index()
+    public function index(User $user)
     {
-        $userId = auth()->id();
-        $zinas = Zinas::where('sutitaja_id', $userId)->orWhere('sanemeja_id', $userId)->get();
-        $users = User::where('id', '!=', $userId)->get();
-        return view('message', compact('zinas', 'users'));
+        $zinas = Zinas::with(['sutitajs', 'sanemejs'])
+            ->whereIn('sutitaja_id', [Auth::id(), $user->id])
+            ->whereIn('sanemeja_id', [Auth::id(), $user->id])
+            ->get();
+        return response()->json($zinas);
     }
 
-    public function store(Request $request)
+    public function store(User $user, Request $request)
     {
         $request->validate([
             'sanemeja_id' => 'required|exists:users,id',
             'zinas_saturs' => 'required|string|max:1000',
         ]);
 
-        $zina = new Zinas();
-        $zina->sutitaja_id=auth()->id();
-        $zina->sanemeja_id=$request->input('sanemeja_id');
-        $zina->zinas_saturs=$request->input('zinas_saturs');
+        $zinas = new Zinas();
+        $zinas->sutitaja_id=auth()->id();
+        $zinas->sanemeja_id=$request->input('sanemeja_id');
+        $zinas->zinas_saturs=$request->input('zinas_saturs');
 
-        return back();
-    }
-
-    public function show(User $users)
-    {
-        $userId = auth()->id();
-        $zinas = Zinas::where(function($query) use ($userId, $user) {
-            $query->where('sutitaja_id', $userId)->where('sanemeja_id', $user->id);
-        })->orWhere(function($query) use ($userId, $user) {
-            $query->where('sutitaja_id', $user->id)->where('sanemeja_id', $userId);
-        })->get();
-
-        return view('message', compact('zinas', 'users'));
-    }
-    public function destroy(Message $message)
-    {
-        $this->authorize('delete', $message);  
-        $message->delete();
-        return back()->with('success', 'Message deleted.');
+        broadcast(new ZinasSutit($user, $zinas))->toOthers();
+        return response()->json($zinas);
     }
 }

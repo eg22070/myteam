@@ -26,7 +26,7 @@ class VartiController extends Controller
             'assist_id' => 'nullable|integer|exists:speletajs,id',
             'minute' => 'required|integer',
         ]);
-        
+        \Log::info('Goal form submission:', $request->all());
         $varti = new Varti();
         $varti->speles_id=$request->input('speles_id');
         $varti->vartuGuveja_id=$request->input('vartuGuveja_id');
@@ -34,8 +34,7 @@ class VartiController extends Controller
         $varti->minute=$request->input('minute');
         $varti->save();
 
-        $spele = Speles::findOrFail($request->speles_id);
-        return redirect()->route('players', ['teamslug' => $teamslug]);
+        return redirect()->route('players', ['teamslug' => $teamslug])->with('success', 'Goal added successfully.');
     }
     public function destroy($teamslug, string $id)
     {

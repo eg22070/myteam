@@ -10,6 +10,12 @@
         </div>
 
         <div>
+            <x-input-label for="surname" :value="__('Surname')" />
+            <x-text-input id="surname" class="block mt-1 w-full" type="text" name="surname" :value="old('surname')" required autofocus autocomplete="surname" />
+            <x-input-error :messages="$errors->get('surname')" class="mt-2" />
+        </div>
+
+        <div>
             <x-input-label for="role" :value="__('Role')" />
             <x-input-select id="role" class="block mt-1 w-full" name="role" 
                             :selected="old('role')"

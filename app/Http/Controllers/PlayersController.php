@@ -16,22 +16,13 @@ class PlayersController extends Controller
     public function index($teamslug)
     {
         $teams = Komanda::where('vecums','=', $teamslug)->first();
-        if (!$teams) {
-            \Log::info("No team found for teamslug: $teamslug");
-            abort(404, 'Team not found.');
-        }
-        $player = $teams->speletajs;
 
-        if ($player instanceof \Illuminate\Database\Eloquent\Collection) {
-            \Log::info("Players fetched: " . $player->count());
-        } else {
-            \Log::info("Players is not a collection.");
-        }
+        $players = $teams->speletajs;
 
         $comments = $teams->vizualieMateriali()->get();
         $games = $teams->speles()->with(['varti.VartuGuvejs', 'varti.assist'])->get();
 
-        return view('players', compact('teams', 'player', 'comments', 'games'));
+        return view('players', compact('teams', 'players', 'comments', 'games'));
 
     }
 

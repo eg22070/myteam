@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('chat')" :active="request()->routeIs('chat')">
+                    <x-nav-link :href="route('chat-users')" :active="request()->routeIs('chat-users')">
                         {{ __('Chat') }}
                     </x-nav-link>
                 </div>
@@ -62,6 +62,11 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        @can('is-owner')
+                        <x-dropdown-link :href="route('register')">
+                            {{ __('Register user') }}
+                        </x-dropdown-link>
+                        @endcan
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -91,9 +96,34 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            <<div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-responsive-nav-link :href="route('notifications')" :active="request()->routeIs('notifications')">
+                        {{ __('Notifications') }}
+                    </x-responsive-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('About') }}
+                    </x-responsive-nav-link>
+                </div>
+                
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-responsive-nav-link :href="route('teams')" :active="request()->routeIs('teams')">
+                        {{ __('Teams') }}
+                    </x-responsive-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-responsive-nav-link :href="route('calendar')" :active="request()->routeIs('calendar')">
+                        {{ __('Training schedule') }}
+                    </x-responsive-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-responsive-nav-link :href="route('chat-users')" :active="request()->routeIs('chat-users')">
+                        {{ __('Chat') }}
+                    </x-responsive-nav-link>
+                </div>
         </div>
 
         <!-- Responsive Settings Options -->
@@ -107,7 +137,11 @@
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
-
+                @can('is-owner')
+                <x-responsive-nav-link :href="route('register')">
+                    {{ __('Register user') }}
+                </x-responsive-nav-link>
+                @endcan
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
