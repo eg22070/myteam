@@ -8,6 +8,15 @@
     @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class=" grid grid-cols-2 gap-10  overflow-hidden ">
@@ -24,11 +33,13 @@
             @endcan
             </br>
             </br>
-            <h3 class="font-semibold text-l text-gray-800 leading-tight">
-                {{ __('Next training for') }} {{$teams?->vecums}} {{ __('team:')}}
+            <h2 class="font-semibold text-l text-gray-800 leading-tight">
+                {{ __('Information for the team:') }}
                 </h2>
-                <h3 class="font-semibold text-m text-teal-400 leading-tight">{{$teams->nakosaisTrenins}}</h3>
-                </br></br>
+            <div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
+                <p>{{$teams->apraksts}}</p>
+            </div>
+                </br>
                 <div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
                 <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#viewCommentModal">
                 <h2 class=" hover-underline-animation border-sky-400 rounded-md font-semibold text-xl text-white-800 leading-tight"><u>View coach comments</u></a></h2>
@@ -93,15 +104,23 @@
                         <x-input-error :messages="$errors->get('vecums')" class="mt-2" />
                     </div>
                     <div class="mt-4">
-                        <x-input-label for="nakosaisTrenins" :value="__('NakosaisTrenins')" />
-                        <x-text-input id="nakosaisTrenins" class="block mt-1 w-full" type="text" name="nakosaisTrenins" :value="old('nakosaisTrenins', $teams->nakosaisTrenins)" required autocomplete="nakosaisTrenins" />
-                        <x-input-error :messages="$errors->get('nakosaisTrenins')" class="mt-2" />
+                        <x-input-label for="apraksts" :value="__('Informācija komandai')" />
+                        <x-text-input id="apraksts" class="block mt-1 w-full" type="text" name="apraksts" :value="old('apraksts', $teams->apraksts)" autocomplete="apraksts" />
+                        <x-input-error :messages="$errors->get('apraksts')" class="mt-2" />
                     </div>
-                    <div>
-                        <x-input-label for="coach_id" :value="__('coach_id')" />
-                        <x-text-input id="coach_id" class="block mt-1 w-full" type="text" name="coach_id" :value="old('coach_id', $teams->coach_id)" required autofocus autocomplete="coach_id" />
-                        <x-input-error :messages="$errors->get('coach_id')" class="mt-2" />
-                    </div>
+                    <div class="form-group">
+    <label for="coach_id">Coach</label>
+    <select name="coach_id" id="coach_id" class="form-control" required>
+        <!-- Check if current coach is in the list of coaches -->
+        @foreach($coaches as $coach)
+            <option value="{{ $coach->id }}" 
+                {{ $teams->coach_id === $coach->id ? 'selected' : '' }}>
+                {{ $coach->name }} {{ $coach->surname }}
+            </option>
+        @endforeach
+    </select>
+    <x-input-error :messages="$errors->get('coach_id')" class="mt-2" />
+</div>
                     <div class="flex items-center justify-end mt-4">
                         <x-primary-button class="ml-4">
                             {{ __('Update teams information') }}
@@ -202,15 +221,15 @@
                         <ul class="goal-list">
                 @foreach($game->varti as $goal)
                     <li>
-                        Goal by {{ $goal->VartuGuvejs->name }} {{ $goal->VartuGuvejs->surname }}
+                        Goal by {{ $goal->vartuGuvejs->vards }} {{ $goal->vartuGuvejs->uzvards }}
                         @if($goal->assist)
-                            (Assisted by {{ $goal->assist->name }} {{ $goal->assist->surname }} )
+                            (Assisted by {{ $goal->assist->vards }} {{ $goal->assist->uzvards }} )
                         @endif
                         (Minute: {{ $goal->minute }})
                         <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this goal?');" class="btn btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </li>
                 @endforeach
@@ -341,43 +360,42 @@
                 </div>
                 <div class="modal-body">
                 <form method="POST" action="{{ route('players',  ['teamslug' =>
-$teams->vecums]) }}">
+$teams->vecums]) }}" enctype="multipart/form-data">
         @csrf
 
         <div>
             <x-input-label for="vards" :value="__('Name')" />
-            <x-text-input id="vards" class="block mt-1 w-full" type="text" name="vards" :value="old('vards')" required autofocus autocomplete="vards" />
-            <x-input-error :messages="$errors->get('vards')" class="mt-2" />
+            <x-text-input id="vards" class="form-control" type="text" name="vards" required/>
+
         </div>
 
         <div class="mt-4">
             <x-input-label for="uzvards" :value="__('Surname')" />
-            <x-text-input id="uzvards" class="block mt-1 w-full" type="text" name="uzvards" :value="old('uzvards')" required autocomplete="uzvards" />
-            <x-input-error :messages="$errors->get('uzvards')" class="mt-2" />
+            <x-text-input id="uzvards" class="form-control" type="text" name="uzvards" required/>
         </div>
         <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
         <div>
             <x-input-label for="nepamekletieTrenini" :value="__('Missed trainings this month')" />
-            <x-text-input id="nepamekletieTrenini" class="block mt-1 w-full" type="text" name="nepamekletieTrenini" :value="old('nepamekletieTrenini')" required autofocus autocomplete="nepamekletieTrenini" />
-            <x-input-error :messages="$errors->get('nepamekletieTrenini')" class="mt-2" />
+            <x-text-input id="nepamekletieTrenini" class="form-control" type="text" name="nepamekletieTrenini" required />
         </div>
-
+        <div class="form-group">
+            <label for="bilde">Profile Photo</label>
+            <input type="file" class="form-control" id="bilde" name="bilde" accept="image/*" required> <!-- Ensures only image files can be selected -->
+            <x-input-error :messages="$errors->get('bilde')" class="mt-2" />
+        </div>
         <div>
             <x-input-label for="speles" :value="__('Games')" />
-            <x-text-input id="speles" class="block mt-1 w-full" type="text" name="speles" :value="old('speles')" required autofocus autocomplete="speles" />
-            <x-input-error :messages="$errors->get('speles')" class="mt-2" />
+            <x-text-input id="speles" class="form-control" type="text" name="speles" required/>
         </div>
 
         <div>
             <x-input-label for="varti" :value="__('Goals')" />
-            <x-text-input id="varti" class="block mt-1 w-full" type="text" name="varti" :value="old('varti')" required autofocus autocomplete="varti" />
-            <x-input-error :messages="$errors->get('varti')" class="mt-2" />
+            <x-text-input id="varti" class="form-control" type="text" name="varti" required/>
         </div>
 
         <div>
             <x-input-label for="piespeles" :value="__('Assists')" />
-            <x-text-input id="piespeles" class="block mt-1 w-full" type="text" name="piespeles" :value="old('piespeles')" required autofocus autocomplete="piespeles" />
-            <x-input-error :messages="$errors->get('piespeles')" class="mt-2" />
+            <x-text-input id="piespeles" class="form-control" type="text" name="piespeles" required/>
         </div>
         <div class="flex items-center justify-end mt-4">
             <x-primary-button class="ml-4">

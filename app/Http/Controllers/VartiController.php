@@ -20,12 +20,7 @@ class VartiController extends Controller
     }
     public function store(Request $request, $teamslug)
     {
-        $request->validate([
-            'speles_id' => 'required|exists:speles,id',
-            'VartuGuveja_id' => 'required|integer|exists:speletajs,id',
-            'assist_id' => 'nullable|integer|exists:speletajs,id',
-            'minute' => 'required|integer',
-        ]);
+        
         \Log::info('Goal form submission:', $request->all());
         $varti = new Varti();
         $varti->speles_id=$request->input('speles_id');
@@ -41,7 +36,7 @@ class VartiController extends Controller
         if (Gate::denies('is-coach-or-owner')){
             abort(403);
         }
-        Speles::findOrfail($id)->delete();
+        Varti::findOrfail($id)->delete();
         return redirect()->route('players', ['teamslug' => $teamslug]);
     }
 }

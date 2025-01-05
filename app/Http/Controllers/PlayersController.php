@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Komanda;
 use App\Models\Speletajs;
 use App\Models\VizualaisMaterials;
+use App\Models\User;
 use App\Http\Controllers\PlayersController;
 use Illuminate\Support\Facades\Gate;
 class PlayersController extends Controller
@@ -16,13 +17,13 @@ class PlayersController extends Controller
     public function index($teamslug)
     {
         $teams = Komanda::where('vecums','=', $teamslug)->first();
-
+        $coaches = User::where('role', 'Coach')->get();
         $players = $teams->speletajs;
 
         $comments = $teams->vizualieMateriali()->get();
-        $games = $teams->speles()->with(['varti.VartuGuvejs', 'varti.assist'])->get();
+        $games = $teams->speles()->with(['varti.vartuGuvejs', 'varti.assist'])->get();
 
-        return view('players', compact('teams', 'players', 'comments', 'games'));
+        return view('players', compact('coaches', 'teams', 'players', 'comments', 'games'));
 
     }
 
@@ -43,6 +44,21 @@ class PlayersController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+        $validatedData = $request->validate([
+            'vards' => 'required|string|max:255',
+            'uzvards' => 'required|string|max:255',
+            'komanda_id' => 'required|exists:komandas,id',
+            'nepamekletieTrenini' => 'nullable|integer',
+            'speles' => 'required|integer',
+            'varti' => 'required|integer',
+            'piespeles' => 'required|integer',
+            'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+        $photoPath = null;
+    if ($request->hasFile('bilde')) {
+        $photoPath = $request->file('bilde')->store('photos', 'public'); // Store in storage/app/public/photos directory
+    }
         $player = new Speletajs();
         $player->vards= $request->input('vards');
         $player ->uzvards= $request->input('uzvards');
@@ -51,6 +67,7 @@ class PlayersController extends Controller
         $player->speles= $request->input('speles');
         $player ->varti= $request->input('varti');
         $player ->piespeles= $request->input('piespeles');
+        $player->bilde=$photoPath;
         $player->save();
 
         $teams = Komanda::findOrFail($request->komanda_id);
@@ -58,7 +75,11 @@ class PlayersController extends Controller
 $teams->vecums]);
  return redirect($action);
     }
-
+    catch (ValidationException $e) {
+        \Log::error('Validation failed:', $e->errors()); // Logs validation errors
+        return back()->withErrors($e->errors())->withInput(); // Return with errors
+    }
+}
     /**
      * Display the specified resource.
      */
@@ -85,13 +106,29 @@ $teams->vecums]);
      */
     public function update(Request $request, string $id)
     {
-        $player = Speletajs::findOrFail($id);
+        $validatedData = $request->validate([
+            'vards' => 'required|string|max:255',
+            'uzvards' => 'required|string|max:255',
+            'komanda_id' => 'required|exists:komandas,id',
+            'nepamekletieTrenini' => 'nullable|integer',
+            'speles' => 'required|integer',
+            'varti' => 'required|integer',
+            'piespeles' => 'required|integer',
+            'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+        $photoPath = null;
+    if ($request->hasFile('bilde')) {
+        $photoPath = $request->file('bilde')->store('photos', 'public'); // Store in storage/app/public/photos directory
+    }
+        $player= Speletajs::findOrFail($id);
         $player->vards= $request->input('vards');
         $player ->uzvards= $request->input('uzvards');
+        $player -> komanda_id= $request->input('komanda_id');
         $player ->nepamekletieTrenini= $request->input('nepamekletieTrenini');
         $player->speles= $request->input('speles');
         $player ->varti= $request->input('varti');
         $player ->piespeles= $request->input('piespeles');
+        $player->bilde=$photoPath;
         $player->save();
 
         return redirect(action([PlayersController::class, 'show'], ['id' => $player->id]));

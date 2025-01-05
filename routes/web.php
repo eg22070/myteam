@@ -56,7 +56,7 @@ Route::resource('/players', PlayersController::class, ['except' => ['index', 'cr
 Route::get('/{teamslug}/players', [PlayersController::class, 'index'])->name('players');
 Route::get('{teamslug}/players/create', [PlayersController::class,'create']);
 Route::post('{teamslug}/players', [PlayersController::class, 'store']);
-Route::post('/players/{id}', [PlayersController::class, 'update']);
+Route::post('/players/{id}', [PlayersController::class, 'update'])->name('players.update');
 Route::get('/players/{id}', [PlayersController::class, 'show'])->name('players.show');
 Route::delete('{teamslug}/players/{id}', [PlayersController::class, 'destroy'])->name('players.destroy');
 //comments routes

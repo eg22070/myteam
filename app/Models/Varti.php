@@ -14,13 +14,13 @@ class Varti extends Model
     {
         return $this->belongsTo(Speles::class);
     }
-    public function VartuGuvejs()
+    public function vartuGuvejs()
     {
-        return $this->belongsTo(Player::class, 'vartuGuveja_id');
+        return $this->belongsTo(Speletajs::class, 'vartuGuveja_id');
     }
 
     public function assist()
     {
-        return $this->belongsTo(Player::class, 'assist_id');
+        return $this->belongsTo(Speletajs::class, 'assist_id');
     }
 }

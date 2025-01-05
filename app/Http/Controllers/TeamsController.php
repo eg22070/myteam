@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Komanda;
+use App\Models\User;
 use App\Http\Controllers\TeamsController;
 use Illuminate\Support\Facades\Gate;
 class TeamsController extends Controller
@@ -13,8 +14,9 @@ class TeamsController extends Controller
      */
     public function index()
     {
+        $coaches = User::where('role', 'Coach')->get();
         $teams = Komanda::all();
- return view('teams', compact('teams'));
+ return view('teams', compact('coaches', 'teams'));
     }
 
     /**
@@ -28,7 +30,7 @@ class TeamsController extends Controller
     {
         $team= new Komanda();
         $team->vecums = $request->input('vecums');
-        $team->nakosaisTrenins = $request->input('nakosaisTrenins');
+        $team->apraksts = $request->input('apraksts');
         $team->coach_id = $request->input('coach_id');
         $team->save();
         $action = action([TeamsController::class, 'index']);
@@ -62,7 +64,7 @@ class TeamsController extends Controller
     {
         $team= Komanda::findOrFail($id);
         $team->vecums = $request->input('vecums');
-        $team->nakosaisTrenins = $request->input('nakosaisTrenins');
+        $team->apraksts = $request->input('apraksts');
         $team->coach_id = $request->input('coach_id');
         $team->save();
         $action = action([TeamsController::class, 'index']);

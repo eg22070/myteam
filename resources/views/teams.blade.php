@@ -69,14 +69,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="nakosaisTrenins">Nakosais Trenins</label>
-                            <input type="text" class="form-control" id="nakosaisTrenins" name="nakosaisTrenins" required>
-                            <x-input-error :messages="$errors->get('nakosaisTrenins')" class="mt-2" />
+                            <label for="apraksts">Informācija komandai</label>
+                            <input type="text" class="form-control" id="apraksts" name="apraksts">
+                            <x-input-error :messages="$errors->get('apraksts')" class="mt-2" />
                         </div>
 
                         <div class="form-group">
-                            <label for="coach_id">Coach ID</label>
-                            <input type="text" class="form-control" id="coach_id" name="coach_id" required>
+                        <label for="coach_id">Coach</label>
+                            <select name="coach_id" id="coach_id" class="form-control" required>
+                                <option value="">Select a coach</option>
+                                @foreach($coaches as $coach)
+                                    <option value="{{ $coach->id }}">{{ $coach->name}} {{ $coach->surname }}</option>
+                                @endforeach
+                            </select>
                             <x-input-error :messages="$errors->get('coach_id')" class="mt-2" />
                         </div>
 

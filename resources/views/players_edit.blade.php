@@ -1,7 +1,7 @@
 <x-guest-layout>
     <h1 class="font-semibold text-xl text-gray-800 leading-tight">Editing player information</h1>
 </br>
-    <form method="POST" action="{{route('players.show', ['id' => $player->id]) }}">
+    <form method="POST" action="{{route('players.show', ['id' => $player->id]) }}" enctype="multipart/form-data">
         @csrf
 
         <div>
@@ -20,7 +20,20 @@
             <x-text-input id="nepamekletieTrenini" class="block mt-1 w-full" type="text" name="nepamekletieTrenini" :value="old('nepamekletieTrenini', $player->nepamekletieTrenini)" required autofocus autocomplete="nepamekletieTrenini" />
             <x-input-error :messages="$errors->get('nepamekletieTrenini')" class="mt-2" />
         </div>
-
+        <div class="mt-4">
+            <h4>Player photo</h4>
+            @if($player->bilde)
+                <div>
+                    <img src="{{ asset('storage/' . $player->bilde) }}" alt="Player Photo" class="rounded-circle" style="width: 100px; height: 100px;">
+                </div>
+            @else
+                <p>No photo available.</p>
+            @endif
+            
+            <x-input-label for="bilde" :value="__('Upload New Photo (Optional)')" />
+            <input type="file" class="form-control" id="bilde" name="bilde" accept="image/*">
+            <x-input-error :messages="$errors->get('bilde')" class="mt-2" />
+        </div>
         <div>
             <x-input-label for="speles" :value="__('Games')" />
             <x-text-input id="speles" class="block mt-1 w-full" type="text" name="speles" :value="old('speles', $player->speles)" required autofocus autocomplete="speles" />
