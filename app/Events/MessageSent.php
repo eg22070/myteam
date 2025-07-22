@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Zinas;
+use App\Models\ChatMessages;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;

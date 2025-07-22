@@ -1,9 +1,9 @@
 <template>
     <div class="chat-box">
         <div ref="messagesBox" class="chat-messages">
-            <div v-for="(zinas, index) in messages" :key="index" :class="['chat-message', { 'own-message': zinas.sutitaja_id === sender.id }]">
-                {{ zinas.zinas_saturs }}
-                <span class="timestamp">{{ formatTimestamp(zinas.created_at) }}</span>
+            <div v-for="(message, index) in messages" :key="index" :class="['chat-message', { 'own-message': message.sender_id === sender.id }]">
+                {{ message.text }}
+                <span class="timestamp">{{ formatTimestamp(message.created_at) }}</span>
               </div>
             </div>
             <div class="chat-input">
@@ -48,7 +48,7 @@ export default {
             if (newMessage.value.trim() !== "") {
                 axios
                     .post(`/messages/${props.receiver.id}`, {
-                        zinas: newMessage.value,
+                        message: newMessage.value,
                     })
                     .then((response) => {
                         messages.value.push(response.data);
@@ -66,12 +66,12 @@ export default {
             });
             Echo.private('chat')
                 .listen("MessageSent", (response) => {
-                    if (response.zinas) {
-                        const messageExists = messages.value.some(msg => msg.id === response.zinas.id);
+                    if (response.message) {
+                        const messageExists = messages.value.some(msg => msg.id === response.message.id);
                         if (!messageExists) {
-                            if ((response.zinas.sutitaja_id === props.sender.id && response.zinas.sanemeja_id === props.receiver.id) || 
-                                (response.zinas.sutitaja_id === props.receiver.id && response.zinas.sanemeja_id === props.sender.id)) {
-                                messages.value.push(response.zinas);
+                            if ((response.message.sender_id === props.sender.id && response.message.receiver_id === props.receiver.id) || 
+                                (response.message.sender_id === props.receiver.id && response.message.receiver_id === props.sender.id)) {
+                                messages.value.push(response.message);
                             }
                         }
                     }

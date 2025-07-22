@@ -9,7 +9,7 @@ use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\PazinojumiController;
 use App\Http\Controllers\SpelesController;
 use App\Http\Controllers\VartiController;
-use App\Http\Controllers\ZinasController;
+use App\Http\Controllers\ChatController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -95,7 +95,7 @@ Route::get('/chat/{user}', function (User $user){
 
 Route::resource(
     'messages/{user}', 
-    ZinasController::class, ['only' => ['index', 'store']]
+    ChatController::class, ['only' => ['index', 'store']]
 )->middleware(['auth']);
 
 //calendar routes
