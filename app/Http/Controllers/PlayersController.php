@@ -16,14 +16,19 @@ class PlayersController extends Controller
      */
     public function index($teamslug)
     {
+       
         $teams = Komanda::where('vecums','=', $teamslug)->first();
         $coaches = User::where('role', 'Coach')->get();
-        $players = $teams->speletajs;
+        $players = $teams->speletajs()->with('user')->get();
+        $availablePlayers = User::where('role', 'Player')
+                            ->whereHas('speletajs', function ($query) {
+                                $query->whereNull('komanda_id');
+                            })->with('speletajs')->get();
 
         $comments = $teams->vizualieMateriali()->get();
         $games = $teams->speles()->with(['varti.vartuGuvejs', 'varti.assist'])->get();
 
-        return view('players', compact('coaches', 'teams', 'players', 'comments', 'games'));
+        return view('players', compact('coaches', 'teams', 'players', 'comments', 'games', 'availablePlayers'));
 
     }
 
@@ -42,44 +47,20 @@ class PlayersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, $teamslug)
     {
-        try {
-        $validatedData = $request->validate([
-            'vards' => 'required|string|max:255',
-            'uzvards' => 'required|string|max:255',
-            'komanda_id' => 'required|exists:komandas,id',
-            'nepamekletieTrenini' => 'nullable|integer',
-            'speles' => 'required|integer',
-            'varti' => 'required|integer',
-            'piespeles' => 'required|integer',
-            'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-        $photoPath = null;
-    if ($request->hasFile('bilde')) {
-        $photoPath = $request->file('bilde')->store('photos', 'public'); // Store in storage/app/public/photos directory
-    }
-        $player = new Speletajs();
-        $player->vards= $request->input('vards');
-        $player ->uzvards= $request->input('uzvards');
-        $player -> komanda_id= $request->input('komanda_id');
-        $player ->nepamekletieTrenini= $request->input('nepamekletieTrenini');
-        $player->speles= $request->input('speles');
-        $player ->varti= $request->input('varti');
-        $player ->piespeles= $request->input('piespeles');
-        $player->bilde=$photoPath;
-        $player->save();
+        $team = Komanda::where('vecums', $teamslug)->firstOrFail();
+        $playerIds = $request->input('player_ids', []);
 
-        $teams = Komanda::findOrFail($request->komanda_id);
- $action = action([PlayersController::class, 'index'], ['teamslug' =>
-$teams->vecums]);
- return redirect($action);
+        if (!$playerIds) {
+            return redirect()->back()->with('error', 'No players selected.');
+        }
+
+        // Update each player's komanda_id to assign to the team
+        \DB::table('speletajs')->whereIn('id', $playerIds)->update(['komanda_id' => $team->id]);
+
+        return redirect()->back()->with('success', 'Players added successfully.');
     }
-    catch (ValidationException $e) {
-        \Log::error('Validation failed:', $e->errors()); // Logs validation errors
-        return back()->withErrors($e->errors())->withInput(); // Return with errors
-    }
-}
     /**
      * Display the specified resource.
      */

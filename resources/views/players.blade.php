@@ -26,7 +26,7 @@
             </h2>
             </br>
             @can('is-coach-or-owner')    
-            <!-- Button to Open Modal for adding players-->
+            <!-- Button to Open Modal for editing team information-->
             <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#editTeamModal">
                 Edit team information
             </button>
@@ -67,7 +67,7 @@
  @foreach ($players as $player)
   <div class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900">
   <div>
-  <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{route('players.show', ['id' => $player->id]) }}">{{ $player->vards }} {{ $player->uzvards }}</a></h2>
+  <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{route('players.show', ['id' => $player->id]) }}">{{ $player->user->name }} {{ $player->user->surname }}</a></h2>
  </div>
  <div class="flex items-center justify-end mt-4">
  @can('is-coach-or-owner')
@@ -349,63 +349,87 @@
     </div>
 </div>    
  <!-- Add Player Modal -->
- <div class="modal fade" id="addPlayerModal" tabindex="-1" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addPlayerModalLabel">Adding New Player</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                <form method="POST" action="{{ route('players',  ['teamslug' =>
-$teams->vecums]) }}" enctype="multipart/form-data">
-        @csrf
+<div class="modal fade" id="addPlayerModal" tabindex="-1" aria-labelledby="addPlayerModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
-        <div>
-            <x-input-label for="vards" :value="__('Name')" />
-            <x-text-input id="vards" class="form-control" type="text" name="vards" required/>
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPlayerModalLabel">Select Players to Add</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
 
-        </div>
+      <div class="modal-body">
+        <!-- Show error if no available players -->
+        @if($availablePlayers->isEmpty())
+          <div class="alert alert-danger">No available players to add.</div>
+        @endif
 
-        <div class="mt-4">
-            <x-input-label for="uzvards" :value="__('Surname')" />
-            <x-text-input id="uzvards" class="form-control" type="text" name="uzvards" required/>
-        </div>
-        <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
-        <div>
-            <x-input-label for="nepamekletieTrenini" :value="__('Missed trainings this month')" />
-            <x-text-input id="nepamekletieTrenini" class="form-control" type="text" name="nepamekletieTrenini" required />
-        </div>
-        <div class="form-group">
-            <label for="bilde">Profile Photo</label>
-            <input type="file" class="form-control" id="bilde" name="bilde" accept="image/*" required> <!-- Ensures only image files can be selected -->
-            <x-input-error :messages="$errors->get('bilde')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="speles" :value="__('Games')" />
-            <x-text-input id="speles" class="form-control" type="text" name="speles" required/>
+        <!-- Search and sort controls -->
+        @if(!$availablePlayers->isEmpty())
+        <div class="d-flex mb-3">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search by name or surname" />
+          <button type="button" id="sortButton" class="btn btn-secondary ml-2">Sort by DOB (Young to Old)</button>
         </div>
 
-        <div>
-            <x-input-label for="varti" :value="__('Goals')" />
-            <x-text-input id="varti" class="form-control" type="text" name="varti" required/>
-        </div>
+        <!-- Player list -->
+        <form id="addPlayersForm" method="POST" action="{{ route('players.store', ['teamslug' => $teams->vecums]) }}">
+          @csrf
+          <div id="playersContainer" style="max-height: 400px; overflow-y: auto;">
+            @foreach($availablePlayers as $user)
+              <div class="player-item" data-dob="{{ $user->speletajs->dzimsanas_datums ?? '0000-00-00' }}">
+                <input type="checkbox" name="player_ids[]" value="{{ $user->speletajs->id }}" id="player{{ $user->speletajs->id }}">
+                <label for="player{{ $user->speletajs->id }}">
+                  {{ $user->name }} {{ $user->surname }} (DOB: {{ $user->speletajs->dzimsanas_datums ?? 'N/A' }})
+                </label>
+              </div>
+            @endforeach
+          </div>
+          <div class="mt-3">
+            <x-primary-button class="ml-4">Add Selected Players</x-primary-button>
+          </div>
+        </form>
+        @endif
+      </div>
 
-        <div>
-            <x-input-label for="piespeles" :value="__('Assists')" />
-            <x-text-input id="piespeles" class="form-control" type="text" name="piespeles" required/>
-        </div>
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button class="ml-4">
-                {{ __('Add player') }}
-            </x-primary-button>
-        </div>
-    </form>
-                </div>
-            </div>
-        </div>
     </div>
+  </div>
+</div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const container = document.getElementById('playersContainer');
+    const sortButton = document.getElementById('sortButton');
+
+    // Filter players based on search input
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      Array.from(container.getElementsByClassName('player-item')).forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(query)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+
+    // Sort players by DOB from youngest to oldest
+    let sortedAsc = true;
+    sortButton.addEventListener('click', () => {
+      const items = Array.from(container.getElementsByClassName('player-item'));
+      items.sort((a, b) => {
+        const dateA = new Date(a.dataset.dob);
+        const dateB = new Date(b.dataset.dob);
+        return sortedAsc ? dateA - dateB : dateB - dateA;
+      });
+      // Append sorted items to container
+      items.forEach(item => container.appendChild(item));
+      // Toggle sorting order
+      sortedAsc = !sortedAsc;
+      // Update button text
+      sortButton.textContent = sortedAsc ? 'Sort by DOB (Young to Old)' : 'Sort by DOB (Old to Young)';
+    });
+  });
+</script>
 </x-app-layout>
