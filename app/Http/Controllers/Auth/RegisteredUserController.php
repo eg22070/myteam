@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Komanda;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $teams = Komanda::all();
+        return view('auth.register', compact('teams'));
     }
 
     /**
@@ -34,22 +36,37 @@ class RegisteredUserController extends Controller
     }
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'surname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string'],
+        // Validate Users table fields
+        $validatedUser = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'surname' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'role' => ['required', 'string'],
+    ]);
+        // Validate Players table fields
+        // Make sure these are actually submitted when role='player'
+        $validatedPlayer = $request->validate([
+            'team_id' => ['nullable', 'exists:komandas,id'],
+            'player_number' => ['nullable', 'integer'],
+            'birth_date' => ['nullable', 'date'],
         ]);
-
         $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role, 
+            'role' => $request->role,
         ]);
 
+        if ($user->role === 'Player') {
+            \App\Models\Speletajs::create([
+                'user_id' => $user->id,
+                'komanda_id' => $validatedPlayer['team_id'] ?? null,
+                'numurs' => $validatedPlayer['player_number'] ?? null,
+                'dzimsanas_datums' => $validatedPlayer['birth_date'] ?? null,
+            ]);
+        }
         event(new Registered($user));
 
 

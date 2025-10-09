@@ -29,14 +29,8 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('calendar')" :active="request()->routeIs('calendar')">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Training schedule') }}
-                    </x-nav-link>
-                </div>
-
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('chat-users')" :active="request()->routeIs('chat-users')">
-                        {{ __('Chat') }}
                     </x-nav-link>
                 </div>
                 
@@ -114,16 +108,11 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-responsive-nav-link :href="route('calendar')" :active="request()->routeIs('calendar')">
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Training schedule') }}
                     </x-responsive-nav-link>
                 </div>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-responsive-nav-link :href="route('chat-users')" :active="request()->routeIs('chat-users')">
-                        {{ __('Chat') }}
-                    </x-responsive-nav-link>
-                </div>
         </div>
 
         <!-- Responsive Settings Options -->

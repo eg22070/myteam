@@ -44,8 +44,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function komanda(){
-        return $this->hasMany(Komanda::class);
+    public function komanda() {
+    return $this->belongsTo(Komanda::class, 'komanda_id'); // foreign key
     }
     public function pazinojums(){
         return $this->hasMany(Pazinojums::class);
@@ -55,5 +55,8 @@ class User extends Authenticatable
     }
     public function zinas(){
         return $this->hasMany(Zinas::class);
+    }
+    public function speletajs() {
+        return $this->hasOne(Speletajs::class);
     }
 }

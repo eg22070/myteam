@@ -14,11 +14,7 @@ class CommentsController extends Controller
      */
     public function index($id)
     {
-        $team = Komanda::findOrFail($id);
-    $comments = $team->vizualieMateriali()->get();
-
-    return view('comments', ['team' => $team, 'comments' => $comments]);
-        
+    
     }
 
     /**
@@ -26,11 +22,7 @@ class CommentsController extends Controller
      */
     public function create($teamslug)
     {
-        if (Gate::denies('is-coach-or-owner')){
-            abort(403);
-        }
-        $team = Komanda::where('vecums','=', $teamslug)->first();
-        return view('comment_new', compact('team'));
+     
     }
 
     /**

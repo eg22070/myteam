@@ -41,7 +41,7 @@
                                         </form>
                                     @endcan
                                 </div>
-                                @can('is-coach-or-owner')
+                                @can('is-owner')
                                 <button type="button" class="inline-flex items-center justify-center w-8 h-8 bg-gray-800 border border-gray-500 rounded-md hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#openEditNotificationModal">
         <img src="{{ asset('images/pencil-edit-button.jpg') }}" alt="Edit Notification" class="w-full h-full object-cover" style="cursor: pointer;" />
     </button>

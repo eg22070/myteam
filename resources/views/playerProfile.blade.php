@@ -19,7 +19,7 @@
                     @endcan
                     @if($player->bilde)
                         <div>
-                            <img src="{{ asset('storage/' . $player->bilde) }}" alt="Player Photo" class="border rounded-md border transparent"  style="width: 50%; height: 50%;">
+                            <img src="{{ asset('storage/app/public/photos' . $player->bilde) }}" alt="Player Photo" class="border rounded-md border transparent"  style="width: 50%; height: 50%;">
                         </div>
                     @endif</br>
                 <table style="width:80%"
