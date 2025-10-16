@@ -37,11 +37,7 @@ class PlayersController extends Controller
      */
     public function create($teamslug)
     {
-        if (Gate::denies('is-coach-or-owner')){
-            abort(403);
-        }
-        $teams = Komanda::where('vecums','=', $teamslug)->first();
-        return view('players_new', compact('teams'));
+
     }
 
     /**
@@ -67,7 +63,8 @@ class PlayersController extends Controller
     public function show(string $id)
     {
         $player = Speletajs::findOrFail($id);
-        return view('playerProfile', ['player' => $player]);
+        $teams = \App\Models\Komanda::all();
+        return view('playerProfile', ['player' => $player, 'teams' => $teams]);
     }
 
     /**
@@ -75,11 +72,7 @@ class PlayersController extends Controller
      */
     public function edit(string $id)
     {
-        if (Gate::denies('is-coach-or-owner')){
-            abort(403);
-        }
-        $player = Speletajs::findOrFail($id);
-        return view('players_edit', compact('player'));
+    
     }
 
     /**
@@ -87,32 +80,51 @@ class PlayersController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $player = Speletajs::findOrFail($id);
+
+        $oldTeamId = $player->komanda_id;
+
         $validatedData = $request->validate([
             'vards' => 'required|string|max:255',
             'uzvards' => 'required|string|max:255',
-            'komanda_id' => 'required|exists:komandas,id',
+            'team_id' => 'required|exists:komandas,id',
             'nepamekletieTrenini' => 'nullable|integer',
             'speles' => 'required|integer',
             'varti' => 'required|integer',
             'piespeles' => 'required|integer',
             'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-        $photoPath = null;
-    if ($request->hasFile('bilde')) {
-        $photoPath = $request->file('bilde')->store('photos', 'public'); // Store in storage/app/public/photos directory
-    }
-        $player= Speletajs::findOrFail($id);
-        $player->vards= $request->input('vards');
-        $player ->uzvards= $request->input('uzvards');
-        $player -> komanda_id= $request->input('komanda_id');
-        $player ->nepamekletieTrenini= $request->input('nepamekletieTrenini');
-        $player->speles= $request->input('speles');
-        $player ->varti= $request->input('varti');
-        $player ->piespeles= $request->input('piespeles');
-        $player->bilde=$photoPath;
-        $player->save();
 
-        return redirect(action([PlayersController::class, 'show'], ['id' => $player->id]));
+        $user = $player->user;
+        $user->name = $validatedData['vards'];
+        $user->surname = $validatedData['uzvards'];
+        $user->save();
+
+        if ($request->hasFile('bilde')) {
+            $photoPath = $request->file('bilde')->store('photos', 'public');  // Store in storage/app/public/photos directory
+            $player->bilde = $photoPath; 
+        }
+
+        $player->komanda_id = $validatedData['team_id'];
+        $player->nepamekletieTrenini = $validatedData['nepamekletieTrenini'];
+        $player->speles = $validatedData['speles'];
+        $player->varti = $validatedData['varti'];
+        $player->piespeles = $validatedData['piespeles'];
+
+        $player->save();
+        if ($validatedData['team_id'] !== null && $validatedData['team_id'] != $oldTeamId) {
+            // Redirect to the new team's info page
+            $newTeam = Komanda::find($validatedData['team_id']);
+            if ($newTeam) {
+            return redirect()->route('players', ['teamslug' => $newTeam->vecums])
+                    ->with('success', 'Player updated successfully!');
+        }
+        } else {
+            // No change or team_id is null, redirect elsewhere
+            return redirect()->route('players.show', ['id' => $player->id])
+                     ->with('success', 'Player updated successfully!');
+        }
+        
     }
 
     /**

@@ -8,12 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class Varti extends Model
 {
     use HasFactory;
-
     protected $table = 'varti';
+    protected $fillable = [
+        'speles_id',          // match ID
+        'vartuGuveja_id',     // goal scorer player ID
+        'assist_id',          // assist player ID (nullable)
+        'dzeltena_id',        // yellow card player ID (nullable)
+        'sarkana_id',         // red card player ID (nullable)
+        'minute',             // minute of event
+    ];
     public function speles()
     {
-        return $this->belongsTo(Speles::class);
+        return $this->belongsTo(Speles::class, 'speles_id');
     }
+
     public function vartuGuvejs()
     {
         return $this->belongsTo(Speletajs::class, 'vartuGuveja_id');
@@ -23,4 +31,15 @@ class Varti extends Model
     {
         return $this->belongsTo(Speletajs::class, 'assist_id');
     }
+
+    public function dzeltena()
+    {
+        return $this->belongsTo(Speletajs::class, 'dzeltena_id');
+    }
+
+    public function sarkana()
+    {
+        return $this->belongsTo(Speletajs::class, 'sarkana_id');
+    }
+
 }

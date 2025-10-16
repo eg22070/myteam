@@ -219,131 +219,259 @@
                         <h2>{{ $game->rezultats }}</h2>
                         <hr>
                         <ul class="goal-list">
-                @foreach($game->varti as $goal)
-                    <li>
-                        Goal by {{ $goal->vartuGuvejs->vards }} {{ $goal->vartuGuvejs->uzvards }}
-                        @if($goal->assist)
-                            (Assisted by {{ $goal->assist->vards }} {{ $goal->assist->uzvards }} )
-                        @endif
-                        (Minute: {{ $goal->minute }})
-                        <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
 
-            <!-- Button to Add Goal -->
+                        {{-- Goals --}}
+                        @foreach($game->varti as $goal)
+                            @if($goal->vartuGuvejs)
+                                <li>
+                                    #{{ $goal->vartuGuvejs->numurs }} Goal by {{ $goal->vartuGuvejs->user->name }} {{ $goal->vartuGuvejs->user->surname }}
+                                    @if($goal->assist)
+                                        (#{{ $goal->assist->numurs }} Assisted by {{ $goal->assist->user->name }} {{ $goal->assist->user->surname }})
+                                    @endif
+                                    (Minute: {{ $goal->minute }})
+                                    @can('is-coach-or-owner')
+                                    <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                    @endcan
+                                </li>
+                            @endif
+                        @endforeach
+
+                        {{-- Yellow cards --}}
+                        @foreach($game->varti as $goal)
+                            @if($goal->dzeltena_id)
+                                @php
+                                    $player = $goal->dzeltena; // define relation
+                                @endphp
+                                <li style="color: yellow;">
+                                    Yellow Card to {{ $player->user->name }} {{ $player->user->surname }} (#{{ $player->numurs }})
+                                    (Minute: {{ $goal->minute }})
+                                    @can('is-coach-or-owner')
+                                    <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form>
+                                    @endcan
+                                </li>
+                            @endif
+                        @endforeach
+
+                        {{-- Red cards --}}
+                        @foreach($game->varti as $goal)
+                            @if($goal->sarkana_id)
+                                @php
+                                    $player = $goal->sarkana; // define relation
+                                @endphp
+                                <li style="color: red;">
+                                    Red Card to {{ $player->user->name }} {{ $player->user->surname }} (#{{ $player->numurs }})
+                                    (Minute: {{ $goal->minute }})
+                                    @can('is-coach-or-owner')
+                                    <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form>
+                                    @endcan
+                                </li>
+                            @endif
+                        @endforeach
+
+                    </ul>
+            @can('is-coach-or-owner')
+            <!-- Button to Add Event -->
             <button class="btn btn-primary" onclick="toggleGoalForm({{ $game->id }})">
-                <img src="{{ asset('images/plus-button.jpg') }}" alt="Add Goal" style="width: 20px; height: 20px;"/> Add Goal
+                <img src="{{ asset('images/plus-button.jpg') }}" alt="Add Goal" style="width: 20px; height: 20px;"/> Add Event
             </button>
-
-            <!-- Add Goal Form -->
+            @endcan
+            <!-- Add Event Form -->
             <div id="goalForm-{{ $game->id }}" class="goal-form" style="display: none; margin-top: 10px;">
                 <form method="POST" action="{{ route('varti.store', ['teamslug' => $teams->vecums]) }}">
                     @csrf
+                    <!-- Event type -->
                     <input type="hidden" name="speles_id" value="{{ $game->id }}">
-                    <label for="vartuGuveja_id">Player (Goal Scorer):</label>
-                    <select name="vartuGuveja_id" required>
-                    @foreach($players as $goalPlayer)
-                        <option value="{{ $goalPlayer->id }}">{{ $goalPlayer->vards }} {{ $goalPlayer->uzvards }}</option>
-                    @endforeach
+                    <label>Event Type:</label>
+                    <select class="event-type" data-game-id="{{ $game->id }}" id="event-type-{{ $game->id }}" name="event_type" required>
+                        <option value="">Select Event Type</option>
+                        <option value="goal">Goal</option>
+                        <option value="yellow">Yellow Card</option>
+                        <option value="red">Red Card</option>
                     </select>
-                    <label for="assist_id">Player (Assist):</label>
-                    <select name="assist_id">
-                        <option value="">None</option>
-                        @foreach($players as $assistPlayer)
-                            <option value="{{ $assistPlayer->id }}">{{ $assistPlayer->vards }} {{ $assistPlayer->uzvards }}</option>
-                        @endforeach
-                    </select>
-                    <label for="minute">Minute:</label>
-                    <input type="number" name="minute" required>
-                    <button type="submit" class="btn btn-success">Save Goal</button>
+
+                    <!-- Player (goal scorer or card recipient) -->
+                    <div id="player-field">
+                        <label>Player:</label>
+                        <select name="player_id" required>
+                            @foreach($players as $player)
+                                <option value="{{ $player->id }}">{{ $player->user->name }} {{ $player->user->surname }} (#{{ $player->numurs }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                     <!-- Assist (only for goal) -->
+                    <div id="assist-field-{{ $game->id }}" style="display:none;">
+                        <label>Assist Player:</label>
+                        <select name="assist_id">
+                            <option value="">None</option>
+                            @foreach($players as $player)
+                                <option value="{{ $player->id }}">{{ $player->user->name }} {{ $player->user->surname }} (#{{ $player->numurs }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Additional fields for goals -->
+                    <div id="minute-field">
+                        <label>Minute:</label>
+                        <input type="number" name="minute" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Event</button>
                 </form>
             </div>
+            <script>
+            
+            function toggleGoalForm(id) {
+                const formDiv = document.getElementById(`goalForm-${id}`);
+                if (formDiv.style.display === 'none' || formDiv.style.display === '') {
+                    formDiv.style.display = 'block';
+                } else {
+                    formDiv.style.display = 'none';
+                }
+            }
 
-        <script>
-        function toggleGoalForm(gameId) {
-            const form = document.getElementById(`goalForm-${gameId}`);
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-        </script>
-                        @can('is-coach-or-owner')
-                            <button type="button" class="inline-flex items-center justify-center w-8 h-8 bg-gray-800 border border-gray-500 rounded-md hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 toggleEditGameFormButton" data-game-id="{{ $game->id }}">
-                                <img src="{{ asset('images/pencil-edit-button.jpg') }}" alt="Edit Game result" class="w-full h-full object-cover" style="cursor: pointer;" />
-                            </button>
-                            <form method="POST"
-                            action="{{ route('speles.destroy', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
-                            @csrf
-                            @method('DELETE')
-                            <x-primary-button class="ml-4">Delete game result</x-primary-button>
-                            </form>
-                            <div id="editGameForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
-                            <form method="POST" action="{{ route('games.show', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
-                                @csrf
-                                <div class="form-group">
-                                    <x-input-label for="pretinieks" :value="__('Opponent')" />
-                                    <x-text-input id="pretinieks" class="block mt-1 w-full" type="text" name="pretinieks" :value="old('pretinieks', $game->pretinieks)" required autofocus autocomplete="pretinieks" />
-                                    <x-input-error :messages="$errors->get('pretinieks')" class="mt-2" />
-                                </div>
-                                <div class="form-group">
-                                    <x-input-label for="rezultats" :value="__('Result')" />
-                                    <x-text-input id="rezultats" class="block mt-1 w-full" type="text" name="rezultats" :value="old('rezultats', $game->rezultats)" required autofocus autocomplete="rezultats" />
-                                    <x-input-error :messages="$errors->get('rezultats')" class="mt-2" />
-                                </div>
-                                <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
-                                <button type="submit" class="btn btn-success">Save</button>
-                            </form>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.event-type').forEach(select => {
+                    select.addEventListener('change', () => {
+                    const gameId = select.dataset.gameId;
+                    const assistDiv = document.getElementById('assist-field-' + gameId);
+                    if (!assistDiv) return; // safety check
+
+                    if (select.value === 'goal') {
+                        assistDiv.style.display = 'block';
+                    } else {
+                        assistDiv.style.display = 'none';
+                        // clear assist selection
+                        const assistSelect = assistDiv.querySelector('select');
+                        if (assistSelect) assistSelect.value = '';
+                    }
+                    });
+                    // Trigger the event once to set the correct initial state
+                    select.dispatchEvent(new Event('change'));
+                });
+            });
+            </script>
+            @can('is-coach-or-owner')
+            <!-- Edit game button -->
+            <button type="button" class="inline-flex items-center justify-center w-8 h-8 bg-gray-800 border border-gray-500 rounded-md hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 toggleEditGameFormButton" data-game-id="{{ $game->id }}">
+                <img src="{{ asset('images/pencil-edit-button.jpg') }}" alt="Edit Game result" class="w-full h-full object-cover" style="cursor: pointer;" />
+            </button>
+            <!-- Line-up submit -->
+            @can('is-coach-or-owner')
+                <button class="btn btn-info" onclick="togglePlayerSelection({{ $game->id }})">Who played?</button>
+            @endcan
+
+            <!-- Add this form after the edit game form -->
+            <div id="playerSelectionForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
+                <form method="POST" action="{{ route('games.updatePlayers', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="redirect_url" value="{{ url()->current() }}">
+                    <h4>Select players who played in this game:</h4>
+                    @foreach($players as $player)
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="players[]" value="{{ $player->id }}" id="player-{{ $player->id }}">
+                            <label class="form-check-label" for="player-{{ $player->id }}">
+                                {{ $player->user->name }} {{ $player->user->surname }} (#{{ $player->numurs }})
+                            </label>
                         </div>
-                            
-                        @endcan
-                        
                     @endforeach
-                    <script>
-                        document.querySelectorAll('.toggleEditGameFormButton').forEach(button => {
-                            button.addEventListener('click', function() {
-                                const gameId = this.dataset.gameId;
-                                const form = document.getElementById(`editGameForm-${gameId}`);
-                                if (form.style.display === 'none' || form.style.display === '') {
-                                    form.style.display = 'block'; // Show the form
-                                } else {
-                                    form.style.display = 'none'; // Hide the form
-                                }
-                            });
-                        });
-                    </script>
-                @endif
-                <!-- Form to Add New Game -->
-                @can('is-coach-or-owner')
+                    <button type="submit" class="btn btn-success mt-3">Save Players</button>
+                </form>
+            </div>
+            <script>
+                function togglePlayerSelection(id) {
+                    const formDiv = document.getElementById(`playerSelectionForm-${id}`);
+                    if (formDiv.style.display === 'none' || formDiv.style.display === '') {
+                        formDiv.style.display = 'block';
+                    } else {
+                        formDiv.style.display = 'none';
+                    }
+                }
+            </script>
+            <!-- Delete game button -->
+            <form method="POST"
+            action="{{ route('speles.destroy', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
+            @csrf
+            @method('DELETE')
+            <x-primary-button class="ml-4">Delete game result</x-primary-button>
+            </form>
+            <!-- Edit game modal -->
+            <div id="editGameForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
+            <form method="POST" action="{{ route('games.show', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
+            @csrf
+            <div class="form-group">
+                <x-input-label for="pretinieks" :value="__('Opponent')" />
+                <x-text-input id="pretinieks" class="block mt-1 w-full" type="text" name="pretinieks" :value="old('pretinieks', $game->pretinieks)" required autofocus autocomplete="pretinieks" />
+                <x-input-error :messages="$errors->get('pretinieks')" class="mt-2" />
+            </div>
+            <div class="form-group">
+                <x-input-label for="rezultats" :value="__('Result')" />
+                <x-text-input id="rezultats" class="block mt-1 w-full" type="text" name="rezultats" :value="old('rezultats', $game->rezultats)" required autofocus autocomplete="rezultats" />
+                <x-input-error :messages="$errors->get('rezultats')" class="mt-2" />
+            </div>
+            <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
+                <button type="submit" class="btn btn-success">Save</button>
+            </form>
+        </div>
+                            
+            @endcan
+                        
+            @endforeach
+            <script>
+                document.querySelectorAll('.toggleEditGameFormButton').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const gameId = this.dataset.gameId;
+                        const form = document.getElementById(`editGameForm-${gameId}`);
+                        if (form.style.display === 'none' || form.style.display === '') {
+                            form.style.display = 'block'; // Show the form
+                        } else {
+                            form.style.display = 'none'; // Hide the form
+                        }
+                    });
+                });
+            </script>
+            @endif
+            <!-- Form to Add New Game -->
+            @can('is-coach-or-owner')
                 <button class="btn btn-primary" id="toggleGameFormButton">Add Game</button>
-                        <div id="addGameForm" style="display: none; margin-top: 10px;">
-                            <form method="POST" action="{{ route('games.store', ['teamslug' => $teams->vecums]) }}">
-                                @csrf
-                                <div class="form-group">
-                                    <label for="pretinieks">Opponent</label>
-                                    <input type="text" class="form-control" id="pretinieks" name="pretinieks" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="rezultats">Result</label>
-                                    <input type="text" class="form-control" id="rezultats" name="rezultats" required>
-                                </div>
-                                <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
-                                <button type="submit" class="btn btn-success">Save</button>
-                            </form>
-                        </div>
-                    @endcan
-                    <script>
-                        document.getElementById('toggleGameFormButton').addEventListener('click', function() {
-                            var form = document.getElementById('addGameForm');
-                            if (form.style.display === 'none') {
-                                form.style.display = 'block';
-                            } else {
-                                form.style.display = 'none';
-                            }
-                        });
-                    </script>
+                    <div id="addGameForm" style="display: none; margin-top: 10px;">
+                        <form method="POST" action="{{ route('games.store', ['teamslug' => $teams->vecums]) }}">
+                            @csrf
+                            <div class="form-group">
+                                <label for="pretinieks">Opponent</label>
+                                <input type="text" class="form-control" id="pretinieks" name="pretinieks" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rezultats">Result</label>
+                                <input type="text" class="form-control" id="rezultats" name="rezultats" required>
+                            </div>
+                            <input type="hidden" name="komanda_id" value="{{ $teams->id }}">
+                            <button type="submit" class="btn btn-success">Save</button>
+                        </form>
+                    </div>
+            @endcan
+                <script>
+                    document.getElementById('toggleGameFormButton').addEventListener('click', function() {
+                        var form = document.getElementById('addGameForm');
+                        if (form.style.display === 'none') {
+                            form.style.display = 'block';
+                        } else {
+                            form.style.display = 'none';
+                        }
+                    });
+                </script>
             </div>
         </div>
     </div>
