@@ -24,13 +24,18 @@ class PazinojumiController extends Controller
      */
     public function store(Request $request)
     {
+         $validatedData = $request->validate([
+            'virsraksts' => 'required|string|max:255',
+            'pazinojums' => 'required|string',
+            'datums' => 'required|date', // ensure date format
+        ]);
         $pazinojums= new Pazinojums();
-        $pazinojums->virsraksts = $request->input('virsraksts');
+        $pazinojums->virsraksts = $validatedData['virsraksts'];
         $pazinojums->owner_id = auth()->id();
-        $pazinojums->pazinojums = $request->input('pazinojums');
-        $pazinojums->datums = $request->input('datums');
+        $pazinojums->pazinojums = $validatedData['pazinojums'];
+        $pazinojums->datums = $validatedData['datums'];
         $pazinojums->save();
-        $action = action([PazinojumiController::class, 'index']);
+
         return redirect()->route('notifications')->with('success', 'Notification added successfully.');
     }
 
@@ -55,11 +60,16 @@ class PazinojumiController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $validatedData = $request->validate([
+            'virsraksts' => 'required|string|max:255',
+            'pazinojums' => 'required|string',
+            'datums' => 'required|date', // ensure date format
+        ]);
         $pazinojums= Pazinojums::findOrFail($id);
-        $pazinojums->virsraksts = $request->input('virsraksts');
+        $pazinojums->virsraksts = $validatedData('virsraksts');
         $pazinojums->owner_id = auth()->id();
-        $pazinojums->pazinojums = $request->input('pazinojums');
-        $pazinojums->datums = $request->input('datums');
+        $pazinojums->pazinojums = $validatedData('pazinojums');
+        $pazinojums->datums = $validatedData('datums');
         $pazinojums->save();
         $action = action([PazinojumiController::class, 'index']);
         return redirect()->route('notifications')->with('success', 'Notification has been updated successfully.');

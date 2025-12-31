@@ -11,6 +11,7 @@ use App\Http\Controllers\SpelesController;
 use App\Http\Controllers\VartiController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SastavaController;
+use App\Http\Controllers\KalendaraController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -73,7 +74,10 @@ Route::patch('/games/{id}/update-players/{teamslug}', [SpelesController::class, 
 Route::get('{teamslug}/varti', [VartiController::class, 'index'])->name('varti.index');
 Route::post('{teamslug}/varti', [VartiController::class, 'store'])->name('varti.store');
 Route::delete('{teamslug}/varti/{id}', [VartiController::class, 'destroy'])->name('varti.destroy');
-
+//calendar routes
+Route::get('/kalendars', [KalendaraController::class, 'index'])->name('kalendars.index');
+Route::post('/kalendars/ajax', [KalendaraController::class, 'ajax'])->name('kalendars.ajax');
+Route::patch('/kalendars/savePlayers/{teamslug}', [KalendaraController::class, 'savePlayers'])->name('kalendars.savePlayers');
 });
 
 //profile routes

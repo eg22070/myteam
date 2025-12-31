@@ -372,7 +372,7 @@
                 <button class="btn btn-info" onclick="togglePlayerSelection({{ $game->id }})">Who played?</button>
             @endcan
 
-            <!-- Add this form after the edit game form -->
+            <!-- Line-up modal -->
             <div id="playerSelectionForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
                 <form method="POST" action="{{ route('games.updatePlayers', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
                     @csrf

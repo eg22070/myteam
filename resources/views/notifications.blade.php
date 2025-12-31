@@ -52,51 +52,13 @@
                             </div>
                             </br>
                         @endforeach
-                    @endif
+                    
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Notification Modal -->
-    <div class="modal fade" id="addNotificationModal" tabindex="-1" aria-labelledby="addNotificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addNotificationModalLabel">Adding New Notification</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ route('notifications.store') }}">
-                        @csrf
-                        <div class="form-group">
-                            <label for="virsraksts">Virsraksts</label>
-                            <input type="text" class="form-control" id="virsraksts" name="virsraksts" required autofocus>
-                            <x-input-error :messages="$errors->get('virsraksts')" class="mt-2" />
-                        </div>
 
-                        <div class="form-group">
-                            <label for="pazinojums">Paziņojuma saturs</label>
-                            <input type="text" class="form-control" id="pazinojums" name="pazinojums" required>
-                            <x-input-error :messages="$errors->get('pazinojums')" class="mt-2" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="datums">Datums (GGGG.MM.DD)</label>
-                            <input type="text" class="form-control" id="datums" name="datums" required>
-                            <x-input-error :messages="$errors->get('datums')" class="mt-2" />
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">Add Notification</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 <!-- Edit Notification Modal -->
     <div class="modal fade" id="openEditNotificationModal" tabindex="-1" aria-labelledby="editNotificationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -112,7 +74,7 @@
                     @csrf
                     <div>
                         <x-input-label for="virsraksts" :value="__('Virsraksts')" />
-                        <x-text-input id="virsraksts" class="block mt-1 w-full" type="text" name="virsraksts" :value="old('virsraksts', $pazinojums->virsraksts)" required autofocus autocomplete="virsraksts" />
+                        <x-text-input id="virsraksts" class="block mt-1 w-full" type="text" name="virsraksts" :value="old('virsraksts', $pazinojums->virsraksts)" required string max:255 autofocus autocomplete="virsraksts" />
                         <x-input-error :messages="$errors->get('virsraksts')" class="mt-2" />
                     </div>
                     <div class="mt-4">
@@ -122,7 +84,7 @@
                     </div>
                     <div>
                         <x-input-label for="datums" :value="__('Datums (GGGG.MM.DD)')" />
-                        <x-text-input id="datums" class="block mt-1 w-full" type="text" name="datums" :value="old('datums', $pazinojums->datums)" required autofocus autocomplete="datums" />
+                        <x-text-input id="datums" class="block mt-1 w-full" type="date" name="datums" :value="old('datums', $pazinojums->datums)" required autofocus autocomplete="datums" />
                         <x-input-error :messages="$errors->get('datums')" class="mt-2" />
                     </div>
                     <div class="flex items-center justify-end mt-4">
@@ -135,5 +97,44 @@
             </div>
         </div>
     </div>
+@endif 
+   <!-- Add Notification Modal -->
+    <div class="modal fade" id="addNotificationModal" tabindex="-1" aria-labelledby="addNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNotificationModalLabel">Adding New Notification</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ route('notifications.store') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="virsraksts">Virsraksts</label>
+                            <input type="text" class="form-control" id="virsraksts" name="virsraksts" required max:255 autofocus>
+                            <x-input-error :messages="$errors->get('virsraksts')" class="mt-2" />
+                        </div>
 
+                        <div class="form-group">
+                            <label for="pazinojums">Paziņojuma saturs</label>
+                            <input type="text" class="form-control" id="pazinojums" name="pazinojums" required>
+                            <x-input-error :messages="$errors->get('pazinojums')" class="mt-2" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="datums">Datums (GGGG.MM.DD)</label>
+                            <input type="date" class="form-control" id="datums" name="datums" required>
+                            <x-input-error :messages="$errors->get('datums')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Add Notification</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

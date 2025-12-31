@@ -88,10 +88,10 @@ class PlayersController extends Controller
             'vards' => 'required|string|max:255',
             'uzvards' => 'required|string|max:255',
             'team_id' => 'required|exists:komandas,id',
-            'nepamekletieTrenini' => 'nullable|integer',
-            'speles' => 'required|integer',
-            'varti' => 'required|integer',
-            'piespeles' => 'required|integer',
+            'nepamekletieTrenini' => 'nullable|numeric',
+            'speles' => 'required|numeric',
+            'varti' => 'required|numeric',
+            'piespeles' => 'required|numeric',
             'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
