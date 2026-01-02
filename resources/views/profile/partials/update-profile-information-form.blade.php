@@ -1,12 +1,8 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
+            {{ __('View and update your account information and log-in information') }}
         </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
     </header>
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
@@ -22,7 +18,16 @@
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
-
+        <div>
+            <x-input-label for="surname" :value="__('Surname')" />
+            <x-text-input id="surname" name="surname" type="text" class="mt-1 block w-full" :value="old('surname', $user->surname)" required autofocus autocomplete="surname" />
+            <x-input-error class="mt-2" :messages="$errors->get('surname')" />
+        </div>
+        <div>
+            <x-input-label for="birth_date" :value="__('Date of Birth')" />
+            <x-text-input id="birth_date" name="birth_date" type="date" class="mt-1 block w-full" :value="old('birth_date', $user->dzimsanas_datums)" required autofocus autocomplete="birth_date" />
+            <x-input-error class="mt-2" :messages="$errors->get('birth_date')" />
+        </div>
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
@@ -57,7 +62,7 @@
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600"
-                >{{ __('Profile updated.') }}</p>
+                >{{ __('Profile updated succesfully.') }}</p>
             @endif
         </div>
     </form>

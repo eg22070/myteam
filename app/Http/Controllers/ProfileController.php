@@ -26,7 +26,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+        
         $request->user()->fill($request->validated());
+
+        if (isset($validated['birth_date'])) {
+            $request->user()->dzimsanas_datums = $validated['birth_date'];
+        }
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -37,24 +43,11 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
+    /*
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+       
     }
 }

@@ -108,6 +108,7 @@
                         <x-text-input id="uzvards" class="block mt-1 w-full" type="text" name="uzvards" :value="old('uzvards', $player->user->surname)" required autocomplete="uzvards" />
                         <x-input-error :messages="$errors->get('uzvards')" class="mt-2" />
                     </div>
+
                     <!-- Team -->
                     <div class="mt-4">
                         <x-input-label for="team_id" :value="__('Team')" />

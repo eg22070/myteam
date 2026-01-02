@@ -11,8 +11,8 @@ class PazinojumiController extends Controller
 {
     public function index()
     {
-        $pazinojumi = Pazinojums::all();
- return view('notifications', compact('pazinojumi'));
+        $pazinojumi = Pazinojums::with('user')->orderBy('datums', 'desc')->get();
+        return view('notifications', compact('pazinojumi'));
     }
 
     /**
@@ -26,7 +26,7 @@ class PazinojumiController extends Controller
     {
          $validatedData = $request->validate([
             'virsraksts' => 'required|string|max:255',
-            'pazinojums' => 'required|string',
+            'pazinojums' => 'required|string|max:500',
             'datums' => 'required|date', // ensure date format
         ]);
         $pazinojums= new Pazinojums();
@@ -62,17 +62,17 @@ class PazinojumiController extends Controller
     {
         $validatedData = $request->validate([
             'virsraksts' => 'required|string|max:255',
-            'pazinojums' => 'required|string',
+            'pazinojums' => 'required|string|max:500',
             'datums' => 'required|date', // ensure date format
         ]);
         $pazinojums= Pazinojums::findOrFail($id);
-        $pazinojums->virsraksts = $validatedData('virsraksts');
+        $pazinojums->virsraksts = $validatedData['virsraksts'];
         $pazinojums->owner_id = auth()->id();
-        $pazinojums->pazinojums = $validatedData('pazinojums');
-        $pazinojums->datums = $validatedData('datums');
+        $pazinojums->pazinojums = $validatedData['pazinojums'];
+        $pazinojums->datums = $validatedData['datums'];
         $pazinojums->save();
         $action = action([PazinojumiController::class, 'index']);
-        return redirect()->route('notifications')->with('success', 'Notification has been updated successfully.');
+        return redirect()->route('notifications')->with('success', 'Notification  updated successfully.');
     }
 
     /**
@@ -84,6 +84,6 @@ class PazinojumiController extends Controller
             abort(403);
         }
         Pazinojums::findOrfail($id)->delete();
-        return redirect('notifications/');
+        return redirect('notifications/')->with('success', 'Notification deleted successfully.');
     }
 }

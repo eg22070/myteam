@@ -19,13 +19,13 @@ class PlayersController extends Controller
        
         $teams = Komanda::where('vecums','=', $teamslug)->first();
         $coaches = User::where('role', 'Coach')->get();
-        $players = $teams->speletajs()->with('user')->get();
-        $availablePlayers = User::where('role', 'Player')
-                            ->whereHas('speletajs', function ($query) {
-                                $query->whereNull('komanda_id');
-                            })->with('speletajs')->get();
-
-        $comments = $teams->vizualieMateriali()->get();
+        $players = User::where('role', 'Player')
+                       ->where('komandas_id', $teams->id) // Player must belong to this team
+                       ->get();
+        $availablePlayers = User::where('role', 'Player')->whereNull('komandas_id')->get();
+        $comments = VizualaisMaterials::where('komandas_id', $teams->id)
+                                    ->orderBy('created_at', 'desc') 
+                                    ->get();
         $games = $teams->speles()->with(['varti.vartuGuvejs', 'varti.assist'])->get();
 
         return view('players', compact('coaches', 'teams', 'players', 'comments', 'games', 'availablePlayers'));
@@ -53,7 +53,7 @@ class PlayersController extends Controller
         }
 
         // Update each player's komanda_id to assign to the team
-        \DB::table('speletajs')->whereIn('id', $playerIds)->update(['komanda_id' => $team->id]);
+        \DB::table('users')->whereIn('id', $playerIds)->update(['komandas_id' => $team->id]);
 
         return redirect()->back()->with('success', 'Players added successfully.');
     }

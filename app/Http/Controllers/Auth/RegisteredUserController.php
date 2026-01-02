@@ -21,8 +21,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        $teams = Komanda::all();
-        return view('auth.register', compact('teams'));
+        return view('auth.register');
     }
 
     /**
@@ -40,35 +39,28 @@ class RegisteredUserController extends Controller
         $validatedUser = $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'surname' => ['required', 'string', 'max:255'],
+        'birth_date' => ['required', 'date'],
+        'bilde' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'role' => ['required', 'string'],
-    ]);
-        // Validate Players table fields
-        // Make sure these are actually submitted when role='player'
-        $validatedPlayer = $request->validate([
-            'team_id' => ['nullable', 'exists:komandas,id'],
-            'player_number' => ['nullable', 'integer'],
-            'birth_date' => ['nullable', 'date'],
         ]);
+        $photoPath = null;
+        if ($request->hasFile('bilde')) {
+            $photoPath = $request->file('bilde')->store('photos', 'public');  // Store in storage/app/public/photos directory
+        }
         $user = User::create([
             'name' => $request->name,
             'surname' => $request->surname,
+            'dzimsanas_datums' => $request->birth_date,
+            'bilde' => $photoPath,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+        
 
-        if ($user->role === 'Player') {
-            \App\Models\Speletajs::create([
-                'user_id' => $user->id,
-                'komanda_id' => $validatedPlayer['team_id'] ?? null,
-                'numurs' => $validatedPlayer['player_number'] ?? null,
-                'dzimsanas_datums' => $validatedPlayer['birth_date'] ?? null,
-            ]);
-        }
         event(new Registered($user));
-
 
         return redirect()->route('dashboard')->with('success', 'User registered successfully.');
     }

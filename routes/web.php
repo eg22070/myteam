@@ -62,6 +62,7 @@ Route::delete('{teamslug}/players/{id}', [PlayersController::class, 'destroy'])-
 Route::get('team/{id}/comments', [CommentsController::class, 'index'])->name('comment');
 Route::get('team/{teamslug}/newcomment', [CommentsController::class,'create'])->name('comment.create');
 Route::post('/teams/{teamslug}/comments', [CommentsController::class, 'store'])->name('comments.store');
+Route::put('/teams/{teamslug}/comments/{id}', [CommentsController::class, 'update'])->name('comment.update');
 Route::delete('/teams/{teamslug}/comments/{id}', [CommentsController::class, 'destroy'])->name('comment.destroy');
 //game routes
 Route::get('{teamslug}/games', [SpelesController::class, 'index'])->name('games.index');

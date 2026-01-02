@@ -8,10 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Pazinojums extends Model
 {
     use HasFactory;
-
+    
+    protected $fillable = [
+        'virsraksts',
+        'pazinojums',
+        'datums',
+        'owner_id', // Ensure 'owner_id' is also fillable if you're using create()
+    ];
+    
     public function user()
     {
-        return $this->belongsTo( related:User::class);
+        return $this->belongsTo( User::class, 'owner_id');
     }
     
     public function komanda()
