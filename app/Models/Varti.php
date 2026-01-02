@@ -24,22 +24,22 @@ class Varti extends Model
 
     public function vartuGuvejs()
     {
-        return $this->belongsTo(Speletajs::class, 'vartuGuveja_id');
+        return $this->belongsTo(User::class, 'vartuGuveja_id');
     }
 
     public function assist()
     {
-        return $this->belongsTo(Speletajs::class, 'assist_id');
+        return $this->belongsTo(User::class, 'assist_id');
     }
 
     public function dzeltena()
     {
-        return $this->belongsTo(Speletajs::class, 'dzeltena_id');
+        return $this->belongsTo(User::class, 'dzeltena_id');
     }
 
     public function sarkana()
     {
-        return $this->belongsTo(Speletajs::class, 'sarkana_id');
+        return $this->belongsTo(User::class, 'sarkana_id');
     }
 
 }

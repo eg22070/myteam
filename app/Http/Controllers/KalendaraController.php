@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Kalendars;
 use App\Models\Komanda;
-use App\Models\Speletajs;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class KalendaraController extends Controller
 {
@@ -26,12 +28,13 @@ class KalendaraController extends Controller
             $formattedEvents = $events->map(function ($event) {
                 return [
                     'id' => $event->id,
-                    'title' => $event->apraksts,
+                    'title' => $event->vieta,
                     'start' => $event->sakuma_datums,
                     'end' => $event->beigu_datums ?? $event->sakuma_datums,
                     'allDay' => true, // or false if you handle times
                     'extendedProps' => [
                         'laiks' => $event->laiks,
+                        'apraksts' => $event->apraksts,
                         'vieta' => $event->vieta,
                         'komandas_id' => $event->komandas_id,
                     ],
@@ -41,7 +44,7 @@ class KalendaraController extends Controller
             return response()->json($formattedEvents);
         }
         $komandas = \App\Models\Komanda::all();
-        $players = Speletajs::all();
+        $players = User::all();
   
         return view('calendar', compact('komandas', 'players'));
     }
@@ -54,9 +57,9 @@ class KalendaraController extends Controller
             case 'update':
                 // Common validation for add and update
                 $validatedData = $request->validate([
-                    'apraksts' => 'required|string|max:255',
-                    'laiks' => 'nullable|string|max:50',
-                    'vieta' => 'nullable|string|max:255',
+                    'apraksts' => 'nullable|string|max:500',
+                    'laiks' => 'required|date_format:H:i',
+                    'vieta' => 'required|string|max:255',
                     'komandas_id' => 'required|exists:komandas,id',
                     'sakuma_datums' => 'required|date',
                     'beigu_datums' => 'nullable|date',
@@ -114,48 +117,37 @@ class KalendaraController extends Controller
                 return response()->json(['success' => true]);
                 break;
             case 'markAttendance':
-                $eventId = $request->eventId;
-                $attendanceList = $request->attendanceList;
-               // Get the event model and team, from the event.
-            $event = Kalendars::where('id', $request->eventId)->first();
-            $teamId = $event->komandas_id; // Get the team model, based on ID
-            $players = Speletajs::where('team_id', $teamId)->get(['id','name']); // Get the ID and Name of people
+                $event = Kalendars::findOrFail($request->eventId);
+                $teamId = $event->komandas_id;
 
-                // Loop through each player, to check if they attended, if not add neapmekletieTrenini 
-            foreach ($players as $player) {
-                    $attended = false;
-                foreach($attendanceList as $attendaceDetails){
-                // If a user is present in attendance list, then set variable to true.
-                if($attendaceDetails["playerId"] == $player->id){
-                    $attended = $attendaceDetails["attended"];
-                  }
-                }
-                    if (!$attended) {
-                        $target = Speletajs::where('id', $player->id)->first();
-                       $target->neapmekletieTrenini++;
-                         $target->save(); // Save it.
-                    }
-                }
-
+                $presentIds = collect($request->attendanceList ?? [])
+                ->filter(fn($r) => !empty($r['attended']))
+                ->pluck('playerId')
+                ->all();
+                User::where('komandas_id', $teamId)
+                ->when(!empty($presentIds), fn($q) => $q->whereNotIn('id', $presentIds))
+                ->increment('neapmekletie_trenini');
                 return response()->json(['success' => true]);
-                break;
             default:
                 return response()->json(['error' => 'Invalid request'], 400);
         }
     }
     public function savePlayers(Request $request, $teamslug)
-    {
-        if (Gate::denies('is-coach-or-owner')) {
-            abort(403);
-        }
-        $selectedPlayers = $request->input('attendance', []);
-
-        $affectedRows = DB::table('speletajs')->whereIn('id', $selectedPlayers)->increment('nepamekletieTrenini');
-\Log::info('Affected rows: ' . $affectedRows);
-
-        return redirect($request->input('redirect_url'))->with(
-            'success',
-            'Attendance updated successfully.'
-        );
+{
+    if (Gate::denies('is-coach')) {
+        abort(403);
     }
+
+    $event = Kalendars::findOrFail($request->input('event_id'));
+    $teamId = $event->komandas_id;
+
+    $presentIds = $request->input('attendance', []); // checked = attended
+
+    $affected = User::where('komandas_id', $teamId)
+        ->when(!empty($presentIds), fn($q) => $q->whereNotIn('id', $presentIds))
+        ->increment('neapmekletie_trenini');
+
+    return redirect($request->input('redirect_url'))
+        ->with('success', 'Attendance updated successfully.');
+}
 }

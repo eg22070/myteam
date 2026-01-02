@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Komanda;
 use App\Models\Speles;
 use App\Models\Varti;
-use App\Models\Speletajs;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 class SpelesController extends Controller
@@ -24,14 +24,25 @@ class SpelesController extends Controller
      */
     public function store(Request $request, $teamslug)
     {
+        $request->validate([
+            'komanda_id' => 'required|exists:komandas,id',
+            'pretinieks' => 'required|string|max:255',
+            'rezultats'  => 'nullable|string|max:255',
+            'datums'     => 'required|date',
+            'laiks'      => 'required|date_format:H:i',
+            'vieta'      => 'required|string|max:255',
+        ]);
         $speles = new Speles();
-        $speles->komanda_id = $request->input('komanda_id');
-        $speles->pretinieks = $request->input('pretinieks');
-        $speles->rezultats = $request->input('rezultats');
+        $speles->komanda_id = $request->komanda_id;
+        $speles->pretinieks = $request->pretinieks;
+        $speles->rezultats  = $request->rezultats;
+        $speles->datums     = $request->datums;
+        $speles->laiks      = $request->laiks;
+        $speles->vieta      = $request->vieta;
         $speles->save();
 
         $team = Komanda::findOrFail($request->komanda_id);
-        return redirect()->route('players', ['teamslug' => $teamslug]);
+        return redirect()->route('players', ['teamslug' => $teamslug])->with('success', 'Game added successfully.');
     }
 
     /**
@@ -39,27 +50,42 @@ class SpelesController extends Controller
      */
     public function update(Request $request, $teamslug, string $id)
     {
+        $request->validate([
+            'komanda_id' => 'required|exists:komandas,id',
+            'pretinieks' => 'required|string|max:255',
+            'rezultats'  => 'nullable|string|max:255',
+            'datums'     => 'required|date',
+            'laiks'      => 'required|date_format:H:i',
+            'vieta'      => 'required|string|max:255',
+        ]);
         $speles = Speles::findOrFail($id);
-        $speles->komanda_id = $request->input('komanda_id');
-        $speles->pretinieks = $request->input('pretinieks');
-        $speles->rezultats = $request->input('rezultats');
+        $speles->komanda_id = $request->komanda_id;
+        $speles->pretinieks = $request->pretinieks;
+        $speles->rezultats  = $request->rezultats;
+        $speles->datums     = $request->datums;
+        $speles->laiks      = $request->laiks;
+        $speles->vieta      = $request->vieta;
         $speles->save();
+
         return redirect()
             ->route('players', ['teamslug' => $teamslug])
-            ->with('success', 'Game has been updated successfully.');
+            ->with('success', 'Game updated successfully.');
     }
 
     public function updatePlayers(Request $request, $id, $teamslug)
     {
-        if (Gate::denies('is-coach-or-owner')) {
+        if (Gate::denies('is-coach')) {
             abort(403);
         }
 
         $game = Speles::findOrFail($id);
         $selectedPlayers = $request->input('players', []);
-
+        if (empty($selectedPlayers)) {
+            return redirect($request->input('redirect_url'))
+            ->with('error', 'No players have been selected.');
+        }
         // Increment the 'speles' count for selected players
-        Speletajs::whereIn('id', $selectedPlayers)->increment('speles');
+        User::whereIn('id', $selectedPlayers)->increment('speles');
 
         return redirect($request->input('redirect_url'))->with(
             'success',
@@ -71,7 +97,7 @@ class SpelesController extends Controller
      */
     public function destroy($teamslug, string $id)
     {
-        if (Gate::denies('is-coach-or-owner')) {
+        if (Gate::denies('is-coach')) {
             abort(403);
         }
         $game = Speles::findOrfail($id);
@@ -80,11 +106,11 @@ class SpelesController extends Controller
         foreach ($events as $event) {
             // Decrement goal count and assist count
             if ($event->vartuGuveja_id) {
-                Speletajs::where('id', $event->vartuGuveja_id)->decrement(
+                User::where('id', $event->vartuGuveja_id)->decrement(
                     'varti'
                 );
                 if ($event->assist_id) {
-                    Speletajs::where('id', $event->assist_id)->decrement(
+                    User::where('id', $event->assist_id)->decrement(
                         'piespeles'
                     );
                 }
@@ -92,14 +118,14 @@ class SpelesController extends Controller
 
             // Decrement yellow card count
             if ($event->dzeltena_id) {
-                Speletajs::where('id', $event->dzeltena_id)->decrement(
+                User::where('id', $event->dzeltena_id)->decrement(
                     'dzeltenas'
                 );
             }
 
             // Decrement red card count
             if ($event->sarkana_id) {
-                Speletajs::where('id', $event->sarkana_id)->decrement(
+                User::where('id', $event->sarkana_id)->decrement(
                     'sarkanas'
                 );
             }
