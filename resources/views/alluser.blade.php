@@ -91,7 +91,7 @@
                                         <x-input-label for="role-{{ $user->id }}" :value="__('Role')" />
                                         <select id="role-{{ $user->id }}" name="role"
                                                 class="block mt-1 w-full border-gray-300 rounded-md shadow-sm" required>
-                                            @foreach(['Owner','Coach','Staff','Player'] as $role)
+                                            @foreach(['Owner','Coach','Player'] as $role)
                                                 <option value="{{ $role }}"
                                                     {{ (old('role', $user->role) === $role) ? 'selected' : '' }}>
                                                     {{ $role }}
