@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Training Calendar</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">AFA OLAINE training Calendar</h2>
         <br>
         <h3 class="font-semibold text-l text-gray-800 leading-tight">Team filter:</h3>
         <select id="teamFilter" class="form-control mb-3">
@@ -18,7 +18,7 @@
         <!-- Add Event Button -->
          @can('is-coach')
         <div class="text-center mb-3">
-            <button id="addEventButton" class="btn btn-primary">Add Event</button>
+            <button id="addEventButton" class="btn btn-primary">Add training</button>
         </div>
         @endcan
         <!-- Calendar -->
@@ -97,7 +97,7 @@
 
                         <!-- Apraksts (Title/Description) -->
                         <div class="form-group">
-                            <label for="eventApraksts">Apraksts (Title/Description)</label>
+                            <label for="eventApraksts">Description</label>
                             @can('is-coach')
                                 <input type="text" class="form-control" id="eventApraksts" name="apraksts" required>
                             @else
@@ -107,7 +107,7 @@
 
                         <!-- Laiks (Time) -->
                         <div class="form-group">
-                            <label for="eventLaiks">Laiks (Time)</label>
+                            <label for="eventLaiks">Time</label>
                             @can('is-coach')
                                 {{-- Changed input type to "time" --}}
                                 <input type="text" class="form-control timepicker" id="eventLaiks" name="laiks">
@@ -118,7 +118,7 @@
 
                         <!-- Vieta (Place) -->
                         <div class="form-group">
-                            <label for="eventVieta">Vieta (Place)</label>
+                            <label for="eventVieta">Place</label>
                             @can('is-coach')
                                 <input type="text" class="form-control" id="eventVieta" name="vieta">
                             @else
@@ -128,7 +128,7 @@
 
                         <!-- Komandas (Team) -->
                         <div class="form-group">
-                            <label for="eventKomandas">Komandas (Team)</label>
+                            <label for="eventKomandas">Team</label>
                             @can('is-coach')
                                 <select class="form-control" id="eventKomandas" name="komandas_id" required>
                                     <option value="">Select Team</option>
@@ -143,7 +143,7 @@
 
                         <!-- Sakuma Datums (Start Date) -->
                         <div class="form-group">
-                            <label for="eventSakumaDatums">Sakuma Datums (Start Date)</label>
+                            <label for="eventSakumaDatums">Date</label>
                             @can('is-coach')
                                 <input type="date" class="form-control" id="eventSakumaDatums" name="sakuma_datums" required>
                             @else

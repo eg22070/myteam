@@ -55,7 +55,11 @@
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
-
+                        @can('is-owner')
+                        <x-dropdown-link :href="route('users.index')">
+                            {{ __('All users') }}
+                        </x-dropdown-link>
+                        @endcan
                         @can('is-owner')
                         <x-dropdown-link :href="route('register')">
                             {{ __('Register user') }}

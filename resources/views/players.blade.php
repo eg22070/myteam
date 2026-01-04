@@ -26,71 +26,111 @@
                 </div>
             @endif
             <div class=" grid grid-cols-2 gap-10  overflow-hidden ">
-            <div class="bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">    
+            <div class="bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
+        {{-- Header row --}}
+        <div class="flex items-center justify-between mb-4">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Team information:
+                Team information:
             </h2>
-            </br>
-            @can('is-coach')    
-            <!-- Button to Open Modal for editing team information-->
-            <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#editTeamModal">
-                Edit team information
-            </button>
-            @endcan
-            </br>
-            </br>
-            <h2 class="font-semibold text-l text-gray-800 leading-tight">
-                {{ __('Information for the team:') }}
-                </h2>
-            <div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
-                <p>{{$teams->apraksts}}</p>
-            </div>
-                </br>
-                @can('access-comments-view', $teams)
-                <div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
-                <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#viewCommentModal">
-                <h2 class=" hover-underline-animation border-sky-400 rounded-md font-semibold text-xl text-white-800 leading-tight"><u>View coach comments</u></a></h2>
-            </button>
-            </br>
-            </div>
-            @endcan
-            <br>
-            <div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
-            <button type="button" class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900" data-toggle="modal" data-target="#gameModal">
-    View Game Results
-</button>
-</div>
-</div>
-<div class=" bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
-        <h3 class="font-semibold text-xl text-gray-800 leading-tight">Team players:</h3></br>
-        @can('is-coach')    
-            <!-- Button to Open Modal for adding players-->
-            <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" data-toggle="modal" data-target="#addPlayerModal">
-                Add new player
-            </button>
-        @endcan
- </br>
- </br>
 
- @foreach ($players as $player)
-  <div class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900">
-  <div>
-  <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{route('players.show', ['id' => $player->id]) }}">{{ $player->name }} {{ $player->surname }}</a></h2>
- </div>
- <div class="flex items-center justify-end mt-4">
- @can('is-coach')
- <form method="POST"
- action="{{ action([App\Http\Controllers\PlayersController::class, 'destroy'], ['id' => $player->id, 'teamslug' => $teams->vecums])}}">
-@csrf
-@method('DELETE')
-<x-primary-button class="ml-4">Delete player</x-primary-button>
- </form>
- @endcan
-</div>
- </div></br>@endforeach
- </div>
+            @can('is-coach-or-owner')
+                <button type="button"
+                    class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    data-toggle="modal" data-target="#editTeamModal">
+                    Edit team information
+                </button>
+            @endcan
+        </div>
+
+        {{-- Image + info area --}}
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            {{-- Image / placeholder --}}
+            <div class="col-span-1">
+                @if($teams->bilde)
+                    <img src="{{ asset('storage/' . $teams->bilde) }}"
+                         alt="Team image"
+                         class="w-full h-40 border border-gray-300 rounded-md object-cover">
+                @else
+                    <div class="w-full h-40 border border-dashed border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-sm">
+                        Team image
+                    </div>
+                @endif
+            </div>
+
+            {{-- Text info --}}
+            <div class="col-span-2 bg-white border border-sky-400 rounded-md sm:rounded-lg p-4 text-gray-900">
+                <h3 class="font-semibold text-sm text-gray-800 mb-2">
+                    Information for the team:
+                </h3>
+                <p class="text-sm leading-relaxed whitespace-pre-line">
+                    {{ $teams->apraksts }}
+                </p>
             </div>
         </div>
+
+        {{-- Coach + comments --}}
+        <div class="flex items-center justify-between gap-3 mb-4">
+            @if($teamcoach)
+                <h2 class="font-semibold text-l text-gray-800 leading-tight">
+                    Team Coach: {{ $teamcoach->name }} {{ $teamcoach->surname }}
+                </h2>
+            @else
+                <h2 class="font-semibold text-l text-gray-800 leading-tight">
+                    Team Coach: <span class="text-gray-500">Not assigned yet</span>
+                </h2>
+            @endif
+
+            @can('access-comments-view', $teams)
+                <button type="button"
+                    class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg px-2 py-1 text-gray-900"
+                    data-toggle="modal" data-target="#viewCommentModal">
+                    View coach comments
+                </button>
+            @endcan
+        </div>
+
+        {{-- Calendar / results button --}}
+        <button type="button"
+            class="w-full text-center bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg py-2 text-gray-900"
+            data-toggle="modal" data-target="#gameModal">
+            View game calendar and results
+        </button>
+    </div>
+
+    {{-- RIGHT COLUMN: team players (unchanged) --}}
+    <div class="bg-white border border-sky-400 rounded-md shadow-sm sm:rounded-lg p-6 text-gray-900">
+        <h3 class="font-semibold text-xl text-gray-800 leading-tight">Team players:</h3>
+        <br>
+        @can('is-team-coach', $teams)
+            <button type="button"
+                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                data-toggle="modal" data-target="#addPlayerModal">
+                Add players to the team
+            </button>
+            <br><br>
+        @endcan
+
+        @foreach ($players as $player)
+            <div class="flex items-center justify-between gap-3 bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900 mb-2">
+                <div>
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                        <a href="{{ route('players.show', ['id' => $player->id]) }}">
+                            {{ $player->name }} {{ $player->surname }}
+                        </a>
+                    </h2>
+                </div>
+                <div class="flex items-center justify-end">
+                    @can('is-team-coach', $teams)
+                        <form method="POST"
+                            action="{{ action([App\Http\Controllers\PlayersController::class, 'destroy'], ['id' => $player->id, 'teamslug' => $teams->vecums]) }}">
+                            @csrf
+                            @method('DELETE')
+                            <x-primary-button class="ml-4">Remove player</x-primary-button>
+                        </form>
+                    @endcan
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
 <!-- Edit team information Modal -->
@@ -104,31 +144,62 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                <form method="POST" action="{{ route('teams.show',  ['id' => $teams->id]) }}">
+                <form method="POST" action="{{ route('teams.show',  ['id' => $teams->id]) }}" enctype="multipart/form-data">
                     @csrf
                     <div>
-                        <x-input-label for="vecums" :value="__('Vecums')" />
+                        <x-input-label for="vecums" :value="__('Team age')" />
                         <x-text-input id="vecums" class="block mt-1 w-full" type="text" name="vecums" :value="old('vecums', $teams->vecums)" required autofocus autocomplete="vecums" />
                         <x-input-error :messages="$errors->get('vecums')" class="mt-2" />
                     </div>
-                    <div class="mt-4">
-                        <x-input-label for="apraksts" :value="__('Informācija komandai')" />
-                        <x-text-input id="apraksts" class="block mt-1 w-full" type="text" name="apraksts" :value="old('apraksts', $teams->apraksts)" autocomplete="apraksts" />
+
+                    <div class="mb-4">
+                        <x-input-label for="apraksts" :value="__('Information for the team')" />
+                        <textarea id="apraksts" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="apraksts" rows="4" autocomplete="apraksts">{{ old('apraksts', $teams->apraksts) }}</textarea>
                         <x-input-error :messages="$errors->get('apraksts')" class="mt-2" />
                     </div>
+                    
+                    <div class="mt-4">
+                        <x-input-label :value="__('Current team photo')" />
+                        @if($teams->bilde)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/' . $teams->bilde) }}"
+                                     alt="Team image"
+                                     class="w-50 h-auto border border-gray-300 rounded-md object-cover">
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-500">No photo currently uploaded.</p>
+                        @endif
+
+                        <x-input-label for="team_image" :value="__('Upload new team photo (optional)')" class="mt-2" />
+                        <input type="file"
+                               id="team_image"
+                               name="image"
+                               accept="image/*"
+                               class="block w-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-md file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-blue-50 file:text-blue-700
+                                      hover:file:bg-blue-100" />
+                        <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                    </div>
+                    @can('is-owner')
                     <div class="form-group">
-    <label for="coach_id">Coach</label>
-    <select name="coach_id" id="coach_id" class="form-control" required>
-        <!-- Check if current coach is in the list of coaches -->
-        @foreach($coaches as $coach)
-            <option value="{{ $coach->id }}" 
-                {{ $teams->coach_id === $coach->id ? 'selected' : '' }}>
-                {{ $coach->name }} {{ $coach->surname }}
-            </option>
-        @endforeach
-    </select>
-    <x-input-error :messages="$errors->get('coach_id')" class="mt-2" />
-</div>
+                        <label for="coach_id">Coach</label>
+                        <select name="coach_id" id="coach_id" class="form-control" required>
+                            <!-- Check if current coach is in the list of coaches -->
+                            @foreach($coaches as $coach)
+                                <option value="{{ $coach->id }}" 
+                                    {{ $teams->coach_id === $coach->id ? 'selected' : '' }}>
+                                    {{ $coach->name }} {{ $coach->surname }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('coach_id')" class="mt-2" />
+                    </div>
+                    @elsecan('is-team-coach', $teams)
+                    <input type="hidden" name="coach_id" value="{{ $teams->coach_id }}">
+                    @endcan
                     <div class="flex items-center justify-end mt-4">
                         <x-primary-button class="ml-4">
                             {{ __('Update teams information') }}
@@ -148,7 +219,7 @@
                 <h5 class="modal-title font-semibold text-2xl text-gray-800" id="commentsModalLabel">Coach tactical materials</h5> {{-- Updated title and styling --}}
                 <div class="flex items-center space-x-3">
                     {{-- "Add Tactical Material" button --}}
-                    @can('is-coach')
+                    @can('is-team-coach', $teams)
                         <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"  id="toggleAddCommentFormButton"> {{-- Renamed ID for clarity --}}
                             {{ __('Add tactical material') }} {{-- Changed button text --}}
                         </button>
@@ -160,7 +231,7 @@
             </div>
             <div class="modal-body p-6"> {{-- Added padding to modal body --}}
                 {{-- Form to Add New tactical material (initially hidden) --}}
-                @can('is-coach')
+                @can('is-team-coach', $teams)
                     <div id="addCommentForm" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6" style="display: none;"> {{-- Styled form container --}}
                         <h4 class="font-bold text-lg mb-4 text-gray-800">{{ __('Add New Tactical Material') }}</h4>
                         <form action="{{ route('comments.store', ['teamslug' => $teams->vecums]) }}" method="POST" enctype="multipart/form-data"> {{-- Added enctype for file upload --}}
@@ -196,13 +267,6 @@
                                 <div class="flex-shrink-0 w-full md:w-64"> 
                                     @if($comment->bilde)
                                         <img src="{{ asset('storage/' . $comment->bilde) }}" alt="{{ $comment->virsrakst }}" class="w-50 h-50 object-cover rounded-md border border-gray-200"> {{-- w-full h-40 object-cover for responsive image --}}
-                                    @else
-                                        {{-- Wireframe-style placeholder --}}
-                                        <div class="w-full h-40 bg-white border border-gray-300 rounded-md flex items-center justify-center text-gray-400 text-lg">
-                                            <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
                                     @endif
                                 </div>
                                 
@@ -214,7 +278,7 @@
                                         </h3>
                                         <p class="mt-2 text-gray-700 text-sm whitespace-pre-line">{{ $comment->komentars }}</p>
                                     </div>
-                                    @can('is-coach')
+                                    @can('is-team-coach', $teams)
                                         <div class="flex items-center justify-end mt-4 gap-2"> {{-- Buttons section --}}
                                             <!-- Edit Button (Pencil Icon) -->
                                             {{-- Changed to a button that toggles an inline form --}}
@@ -238,7 +302,7 @@
                         </div>
 
                         {{-- INLINE EDIT FORM FOR THIS COMMENT (initially hidden) --}}
-                        @can('is-coach')
+                        @can('is-team-coach', $teams)
                         <div id="editCommentForm-{{ $comment->id }}" class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6" style="display: none;">
                             <h4 class="font-bold text-lg mb-4 text-gray-800">{{ __('Edit Tactical Material') }}</h4>
                             <form method="POST" action="{{ route('comment.update', ['teamslug' => $teams->vecums, 'id' => $comment->id]) }}" enctype="multipart/form-data">
@@ -331,7 +395,7 @@
                     AFA OLAINE {{ $teams?->vecums }} games
                 </h5>
 
-                @can('is-coach')
+                @can('is-team-coach', $teams)
                     <!-- Top-right Add game button -->
                     <button class="btn btn-primary btn-sm " id="toggleGameFormButton">
                         Add game
@@ -361,7 +425,7 @@
                                 </div>
 
                                 <div class="btn-group btn-group-sm" role="group">
-                                    @can('is-coach')
+                                    @can('is-team-coach', $teams)
                                         <button class="btn btn-outline-secondary"
                                                 type="button"
                                                 onclick="togglePlayerSelection({{ $game->id }})">
@@ -409,7 +473,7 @@
                                                 {{ $goal->assist->name }} {{ $goal->assist->surname }})
                                             @endif
                                             ({{ $goal->minute }}')
-                                            @can('is-coach')
+                                            @can('is-team-coach', $teams)
                                             <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -429,7 +493,7 @@
                                             Yellow card:
                                             {{ $player->name }} {{ $player->surname }} (#{{ $player->numurs }})
                                             ({{ $goal->minute }}')
-                                            @can('is-coach')
+                                            @can('is-team-coach', $teams)
                                             <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -449,7 +513,7 @@
                                             Red card:
                                             {{ $player->name }} {{ $player->surname }} (#{{ $player->numurs }})
                                             ({{ $goal->minute }}')
-                                            @can('is-coach')
+                                            @can('is-team-coach', $teams)
                                             <form method="POST" action="{{ route('varti.destroy', ['teamslug' => $teams->vecums, 'id' => $goal->id]) }}" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -463,7 +527,7 @@
                             </ul>
 
                             {{-- Add event form (collapsed) --}}
-                            @can('is-coach')
+                            @can('is-team-coach', $teams)
                                 <div id="goalForm-{{ $game->id }}" class="goal-form mt-2" style="display: none;">
                                     <form method="POST" action="{{ route('varti.store', ['teamslug' => $teams->vecums]) }}">
                                         @csrf
@@ -522,7 +586,7 @@
                             @endcan
 
                             {{-- Line-up form (collapsed) --}}
-                            @can('is-coach')
+                            @can('is-team-coach', $teams)
                                 <div id="playerSelectionForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
                                     <form method="POST" action="{{ route('games.updatePlayers', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
                                         @csrf
@@ -545,7 +609,7 @@
                             @endcan
 
                             {{-- Edit game form (collapsed) --}}
-                            @can('is-coach')
+                            @can('is-team-coach', $teams)
                                 <div id="editGameForm-{{ $game->id }}" style="display: none; margin-top: 10px;">
                                     <form method="POST" action="{{ route('games.show', ['id' => $game->id, 'teamslug' => $teams->vecums]) }}">
                                         @csrf
@@ -566,7 +630,7 @@
                                         </div>
                                         <div class="form-group col-md-2">
                                             <label>Time</label>
-                                            <input type="time" class="form-control" name="laiks"
+                                            <input type="text" class="form-control timepicker" name="laiks"
                                                 value="{{ old('laiks', $game->laiks ? substr($game->laiks,0,5) : null) }}" required>
                                         </div>
                                         <div class="form-group col-md-4 mt-2">
@@ -584,7 +648,7 @@
                 @endif
 
                 {{-- Add game form (for top-right button) --}}
-                @can('is-coach')
+                @can('is-team-coach', $teams)
                     <div id="addGameForm" class="mt-3" style="display: none;">
                         <div class="card card-body">
                             <form method="POST" action="{{ route('games.store', ['teamslug' => $teams->vecums]) }}">
@@ -604,7 +668,7 @@
                                     </div>
                                     <div class="form-group col-md-2">
                                         <label for="laiks">Time</label>
-                                        <input type="time" class="form-control" id="laiks" name="laiks" required>
+                                        <input type="text" class="form-control timepicker" id="laiks" name="laiks" required>
                                     </div>
                                     <div class="form-group col-md-4 mt-2">
                                         <label for="vieta">Place</label>
@@ -626,6 +690,13 @@
 
 @push('scripts')
 <script>
+    flatpickr(".timepicker", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",   // 24-hour format, e.g. "13:30"
+        time_24hr: true,
+        minuteIncrement: 1
+    });
     function toggleGoalForm(id) {
         const formDiv = document.getElementById('goalForm-' + id);
         formDiv.style.display = (formDiv.style.display === 'none' || formDiv.style.display === '') ? 'block' : 'none';
@@ -681,7 +752,7 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title" id="addPlayerModalLabel">Select Players to Add</h5>
+        <h5 class="modal-title" id="addPlayerModalLabel">Select players to add to this team</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
 
@@ -695,7 +766,7 @@
         @if(!$availablePlayers->isEmpty())
         <div class="d-flex mb-3">
           <input type="text" id="searchInput" class="form-control" placeholder="Search by name or surname" />
-          <button type="button" id="sortButton" class="btn btn-secondary ml-2">Sort by DOB (Young to Old)</button>
+          <button type="button" id="sortButton" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">Sort from youngest to oldest</button>
         </div>
 
         <!-- Player list -->
@@ -706,13 +777,13 @@
               <div class="player-item" data-dob="{{ $user->dzimsanas_datums ?? '0000-00-00' }}">
                 <input type="checkbox" name="player_ids[]" value="{{ $user->id }}" id="player{{ $user->id }}">
                 <label for="player{{ $user->id }}">
-                  {{ $user->name }} {{ $user->surname }} (DOB: {{ $user->dzimsanas_datums ?? 'N/A' }})
+                  {{ $user->name }} {{ $user->surname }} ( {{ $user->dzimsanas_datums ?? 'N/A' }})
                 </label>
               </div>
             @endforeach
           </div>
           <div class="mt-3">
-            <x-primary-button class="ml-4">Add Selected Players</x-primary-button>
+            <x-primary-button class="ml-4">Add Selected Players to the team</x-primary-button>
           </div>
         </form>
         @endif
@@ -746,17 +817,34 @@
     sortButton.addEventListener('click', () => {
       const items = Array.from(container.getElementsByClassName('player-item'));
       items.sort((a, b) => {
-        const dateA = new Date(a.dataset.dob);
-        const dateB = new Date(b.dataset.dob);
-        return sortedAsc ? dateA - dateB : dateB - dateA;
-      });
-      // Append sorted items to container
-      items.forEach(item => container.appendChild(item));
-      // Toggle sorting order
-      sortedAsc = !sortedAsc;
-      // Update button text
-      sortButton.textContent = sortedAsc ? 'Sort by DOB (Young to Old)' : 'Sort by DOB (Old to Young)';
+        const dobA = a.dataset.dob;
+            const dobB = b.dataset.dob;
+
+            // Handle missing/invalid dates
+            if (!dobA && !dobB) return 0;
+            if (!dobA) return 1;
+            if (!dobB) return -1;
+
+            const dateA = new Date(dobA);
+            const dateB = new Date(dobB);
+
+            // later date = younger
+            if (sortedAsc) {
+                // youngest → oldest
+                return dateB - dateA;
+            } else {
+                // oldest → youngest
+                return dateA - dateB;
+            }
+        });
+
+        items.forEach(item => container.appendChild(item));
+
+        sortedAsc = !sortedAsc;
+        sortButton.textContent = sortedAsc
+            ? 'Sort from youngest to oldest'
+            : 'Sort from oldest to youngest';
     });
-  });
+});
 </script>
 </x-app-layout>

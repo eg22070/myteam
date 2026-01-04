@@ -28,13 +28,26 @@ class TeamsController extends Controller
      */
     public function store(Request $request)
     {
-        $team= new Komanda();
-        $team->vecums = $request->input('vecums');
-        $team->apraksts = $request->input('apraksts');
-        $team->coach_id = $request->input('coach_id');
+        $validated = $request->validate([
+            'vecums'    => 'required|string|max:255',
+            'apraksts'  => 'nullable|string',
+            'coach_id'  => 'nullable|exists:users,id',
+            'image'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB
+        ]);
+
+        $team = new Komanda();
+        $team->vecums   = $validated['vecums'];
+        $team->apraksts = $validated['apraksts'];
+        $team->coach_id = $validated['coach_id'];
+
+        if ($request->hasFile('image')) {
+            $photoPath = $request->file('image')->store('photos', 'public');
+            $team->bilde = $photoPath;
+        }
+
         $team->save();
-        $action = action([TeamsController::class, 'index']);
-        return redirect()->route('teams')->with('success', 'Team created successfully.');
+
+        return redirect()->route('teams')->with('success', 'Team added successfully.');
     }
 
     /**
@@ -62,13 +75,23 @@ class TeamsController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $validated = $request->validate([
+            'vecums'    => 'required|string|max:255',
+            'apraksts'  => 'nullable|string',
+            'coach_id'  => 'nullable|exists:users,id',
+            'image'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB
+        ]);
         $team= Komanda::findOrFail($id);
-        $team->vecums = $request->input('vecums');
-        $team->apraksts = $request->input('apraksts');
-        $team->coach_id = $request->input('coach_id');
+        $team->vecums = $validated['vecums'];
+        $team->apraksts = $validated['apraksts'];
+        $team->coach_id = $validated['coach_id'];
+        if ($request->hasFile('image')) {
+            $photoPath = $request->file('image')->store('photos', 'public');
+            $team->bilde = $photoPath;
+        }
         $team->save();
         $action = action([TeamsController::class, 'index']);
-        return redirect($action);
+        return redirect($action)->with('success', 'Team updated successfully.');
     }
 
     /**
@@ -80,6 +103,6 @@ class TeamsController extends Controller
             abort(403);
         }
         Komanda::findOrfail($id)->delete();
-        return redirect('teams/');
+        return redirect('teams/')->with('success', 'Team deleted successfully.');
     }
 }

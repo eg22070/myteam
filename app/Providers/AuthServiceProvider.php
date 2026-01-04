@@ -49,5 +49,13 @@ class AuthServiceProvider extends ServiceProvider
             // If none of the above conditions are met, access is denied
             return false;
         });
+        Gate::define('is-team-coach', function ($user, Komanda $team) {
+
+            // Condition 1: User is a Coach and their ID matches the team's coach_id
+            if ($user->role === 'Coach' && $user->id === $team->coach_id) {
+                return true;
+            }
+            return false;
+        });
     }
 }

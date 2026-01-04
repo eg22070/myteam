@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Kluba paziņojumi') }} 
+            {{ __('Club notifications') }} 
         </h2>
     </x-slot>
 
@@ -89,18 +89,18 @@
                             @method('PATCH') {{-- Use PATCH or PUT for updates --}}
 
                             <div class="mb-4">
-                                <x-input-label for="edit_virsraksts_{{ $pazinojums->id }}" :value="__('Virsraksts')" />
+                                <x-input-label for="edit_virsraksts_{{ $pazinojums->id }}" :value="__('Title')" />
                                 <x-text-input id="edit_virsraksts_{{ $pazinojums->id }}" class="block mt-1 w-full" type="text" name="virsraksts" :value="old('virsraksts', $pazinojums->virsraksts)" required autofocus autocomplete="off" />
                                 <x-input-error :messages="$errors->get('virsraksts')" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-input-label for="edit_pazinojums_{{ $pazinojums->id }}" :value="__('Paziņojuma saturs')" />
+                                <x-input-label for="edit_pazinojums_{{ $pazinojums->id }}" :value="__('Description')" />
                                 {{-- Changed to textarea for multi-line input --}}
                                 <textarea id="edit_pazinojums_{{ $pazinojums->id }}" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="pazinojums" required>{{ old('pazinojums', $pazinojums->pazinojums) }}</textarea>
                                 <x-input-error :messages="$errors->get('pazinojums')" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-input-label for="edit_datums_{{ $pazinojums->id }}" :value="__('Datums (GGGG.MM.DD)')" />
+                                <x-input-label for="edit_datums_{{ $pazinojums->id }}" :value="__('Date (YYYY.MM.DD)')" />
                                 <x-text-input id="edit_datums_{{ $pazinojums->id }}" class="block mt-1 w-full" type="date" name="datums" :value="old('datums', $pazinojums->datums)" required autocomplete="off" />
                                 <x-input-error :messages="$errors->get('datums')" class="mt-2" />
                             </div>
@@ -121,7 +121,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addNotificationModalLabel">{{ __('Adding New Notification') }}</h5>
+                    <h5 class="modal-title" id="addNotificationModalLabel">{{ __('Add new Notification') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -130,20 +130,20 @@
                     <form method="POST" action="{{ route('notifications.store') }}">
                         @csrf
                         <div class="mb-4"> {{-- Added margin-bottom --}}
-                            <x-input-label for="virsraksts" :value="__('Virsraksts')" />
+                            <x-input-label for="virsraksts" :value="__('Title')" />
                             <x-text-input id="virsraksts" class="block mt-1 w-full" type="text" name="virsraksts" :value="old('virsraksts')" required autofocus autocomplete="off" />
                             <x-input-error :messages="$errors->get('virsraksts')" class="mt-2" />
                         </div>
 
                         <div class="mb-4"> {{-- Added margin-bottom --}}
-                            <x-input-label for="pazinojums" :value="__('Paziņojuma saturs')" />
+                            <x-input-label for="pazinojums" :value="__('Description')" />
                             {{-- Changed to textarea for multi-line input --}}
                             <textarea id="pazinojums" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="pazinojums" required>{{ old('pazinojums') }}</textarea>
                             <x-input-error :messages="$errors->get('pazinojums')" class="mt-2" />
                         </div>
 
                         <div class="mb-4"> {{-- Added margin-bottom --}}
-                            <x-input-label for="datums" :value="__('Datums (GGGG.MM.DD)')" />
+                            <x-input-label for="datums" :value="__('Date (YYYY.MM.DD)')" />
                             <x-text-input id="datums" class="block mt-1 w-full" type="date" name="datums" :value="old('datums')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('datums')" class="mt-2" />
                         </div>

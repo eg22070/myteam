@@ -12,6 +12,7 @@ use App\Http\Controllers\VartiController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SastavaController;
 use App\Http\Controllers\KalendaraController;
+use App\Http\Controllers\AllUsersController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -86,6 +87,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/users', [\App\Http\Controllers\AllUsersController::class, 'index'])
+        ->name('users.index');
+
+    Route::put('/users/{user}', [\App\Http\Controllers\AllUsersController::class, 'update'])
+        ->name('users.update');
+
+    Route::delete('/users/{user}', [\App\Http\Controllers\AllUsersController::class, 'destroy'])
+        ->name('users.destroy');
 });
 
 require __DIR__.'/auth.php';

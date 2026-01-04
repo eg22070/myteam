@@ -1,18 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('AFA OLAINE komandas') }} 
+            {{ __('AFA OLAINE teams') }} 
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="bg-green-200 text-green-800 p-4">
-                    {{ session('success') }}
+            @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
-
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @can('is-owner')
@@ -24,12 +35,12 @@
                     </br></br>
 
                     @if (count($teams) == 0)
-                        <p class='error'>There are no teams in this club!</p>
+                        <p class='error'>There are no teams to show!</p>
                     @else
                         @foreach ($teams as $team)
                             <div class="bg-cyan-200 border border-sky-400 rounded-md overflow-hidden shadow-sm sm:rounded-lg p-1 text-gray-900">
                                 <div>
-                                    <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{ route('players', ['teamslug' => $team->vecums]) }}">{{ $team->vecums }} komanda</a></h2>
+                                    <h2 class="font-semibold text-xl text-gray-800 leading-tight"><a href="{{ route('players', ['teamslug' => $team->vecums]) }}">{{ $team->vecums }} team</a></h2>
                                 </div>
                                 <div class="flex items-center justify-end mt-4">
                                     @can('is-owner')
@@ -60,23 +71,29 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('teams.store') }}">
+                    <form method="POST" action="{{ route('teams.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
-                            <label for="vecums">Vecums</label>
+                            <label for="vecums">Team age</label>
                             <input type="text" class="form-control" id="vecums" name="vecums" required autofocus>
                             <x-input-error :messages="$errors->get('vecums')" class="mt-2" />
                         </div>
 
-                        <div class="form-group">
-                            <label for="apraksts">Informācija komandai</label>
-                            <input type="text" class="form-control" id="apraksts" name="apraksts">
+                        <div class="mb-4">
+                            <x-input-label for="apraksts" :value="__('Information for the team')" />
+                            <textarea id="apraksts" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" name="apraksts" rows="4"></textarea>
                             <x-input-error :messages="$errors->get('apraksts')" class="mt-2" />
+                        </div>
+                        
+                        <div class="mb-4"> 
+                            <x-input-label for="add_image" :value="__('Team photo (Optional)')" />
+                            <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" id="add_image" name="image" accept="image/*" />
+                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
 
                         <div class="form-group">
                         <label for="coach_id">Coach</label>
-                            <select name="coach_id" id="coach_id" class="form-control" required>
+                            <select name="coach_id" id="coach_id" class="form-control">
                                 <option value="">Select a coach</option>
                                 @foreach($coaches as $coach)
                                     <option value="{{ $coach->id }}">{{ $coach->name}} {{ $coach->surname }}</option>
