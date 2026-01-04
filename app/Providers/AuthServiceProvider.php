@@ -38,19 +38,13 @@ class AuthServiceProvider extends ServiceProvider
             if ($user->role === 'Coach' && $user->id === $team->coach_id) {
                 return true;
             }
-
-            // Condition 3: User is a Player and belongs to this team
-            // This assumes your User model has a 'player' relationship,
-            // and your Player model has a 'komandas_id' column.
+            // Condition 2: User is Player and their komandas_id matches the team's ID
             if ($user->role === 'Player'  && $user->komandas_id === $team->id) {
                 return true;
             }
-
-            // If none of the above conditions are met, access is denied
             return false;
         });
         Gate::define('is-team-coach', function ($user, Komanda $team) {
-
             // Condition 1: User is a Coach and their ID matches the team's coach_id
             if ($user->role === 'Coach' && $user->id === $team->coach_id) {
                 return true;

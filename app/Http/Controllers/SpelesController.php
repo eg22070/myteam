@@ -97,14 +97,11 @@ class SpelesController extends Controller
      */
     public function destroy($teamslug, string $id)
     {
-        if (Gate::denies('is-coach')) {
-            abort(403);
-        }
         $game = Speles::findOrfail($id);
-
+        // Find all the associated events to this game
         $events = Varti::where('speles_id', $id)->get();
         foreach ($events as $event) {
-            // Decrement goal count and assist count
+            // Decrement goal count and assist count for player
             if ($event->vartuGuveja_id) {
                 User::where('id', $event->vartuGuveja_id)->decrement(
                     'varti'
@@ -116,23 +113,23 @@ class SpelesController extends Controller
                 }
             }
 
-            // Decrement yellow card count
+            // Decrement yellow card count for player
             if ($event->dzeltena_id) {
                 User::where('id', $event->dzeltena_id)->decrement(
                     'dzeltenas'
                 );
             }
 
-            // Decrement red card count
+            // Decrement red card count for player
             if ($event->sarkana_id) {
                 User::where('id', $event->sarkana_id)->decrement(
                     'sarkanas'
                 );
             }
-
             // Delete the event
             $event->delete();
         }
+        //Delete the game
         $game->delete();
         return redirect()
             ->route('players', ['teamslug' => $teamslug])

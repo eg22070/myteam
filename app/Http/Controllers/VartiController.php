@@ -22,6 +22,7 @@ class VartiController extends Controller
     }
     public function store(Request $request, $teamslug)
     {
+        //Validate input
         $validated = $request->validate([
             'event_type' => 'required|in:goal,yellow,red',
             'speles_id' => 'required|exists:speles,id',
@@ -29,26 +30,28 @@ class VartiController extends Controller
             'assist_id' => 'nullable|exists:users,id',
             'minute' => 'required|integer|min:1|max:90',
         ]);
-
+        // If Event type = Goal, then save goal and add 1 goal to players goal counter
         if ($validated['event_type'] === 'goal') {
             $data['speles_id'] = $validated['speles_id'];
             $data['minute'] = $validated['minute'];
             $data['vartuGuveja_id'] = $validated['player_id'];
             $data['assist_id'] = $validated['assist_id'] ?? null;
-            // Set goal record
+            
             \App\Models\Varti::create($data);
-            // Increment goal count for goal scorer
+            
             \DB::table('users')
                 ->where('id', $validated['player_id'])
                 ->increment('varti');
 
-            // Increment assist count if assist exists
+        // If there was assist - for player who made assist add 1 assist to players assist counter    
             if ($validated['assist_id']) {
                 \DB::table('users')
                     ->where('id', $validated['assist_id'])
                     ->increment('piespeles');
             }
-        } elseif ($validated['event_type'] === 'yellow') {
+        } 
+        // If Event type = Yellow card, then save yellow card and add 1 yellow card to players yellow card counter
+        elseif ($validated['event_type'] === 'yellow') {
             $data['speles_id'] = $validated['speles_id'];
             $data['minute'] = $validated['minute'];
             $data['dzeltena_id'] = $validated['player_id'];
@@ -56,7 +59,9 @@ class VartiController extends Controller
             \DB::table('users')
                 ->where('id', $validated['player_id'])
                 ->increment('dzeltenas');
-        } elseif ($validated['event_type'] === 'red') {
+        } 
+        // If Event type = Red card, then save red card and add 1 red card to players red card counter
+        elseif ($validated['event_type'] === 'red') {
             $data['speles_id'] = $validated['speles_id'];
             $data['minute'] = $validated['minute'];
             $data['sarkana_id'] = $validated['player_id'];
@@ -70,7 +75,6 @@ class VartiController extends Controller
             ->route('players', ['teamslug' => $teamslug])
             ->with('success', 'Event added and stats updated successfully.');
 
-        //return redirect()->route('players', ['teamslug' => $teamslug])->with('success', 'Goal added successfully.');
     }
     public function destroy($teamslug, string $id)
     {
