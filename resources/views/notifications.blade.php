@@ -86,7 +86,7 @@
                     <div class="modal-body">
                         <form method="POST" action="{{ route('notifications.show', $pazinojums->id) }}">
                             @csrf
-                            @method('PATCH') {{-- Use PATCH or PUT for updates --}}
+                            @method('POST') {{-- Use PATCH or PUT for updates --}}
 
                             <div class="mb-4">
                                 <x-input-label for="edit_virsraksts_{{ $pazinojums->id }}" :value="__('Title')" />
@@ -100,7 +100,7 @@
                                 <x-input-error :messages="$errors->get('pazinojums')" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-input-label for="edit_datums_{{ $pazinojums->id }}" :value="__('Date (YYYY.MM.DD)')" />
+                                <x-input-label for="edit_datums_{{ $pazinojums->id }}" :value="__('Date')" />
                                 <x-text-input id="edit_datums_{{ $pazinojums->id }}" class="block mt-1 w-full" type="date" name="datums" :value="old('datums', $pazinojums->datums)" required autocomplete="off" />
                                 <x-input-error :messages="$errors->get('datums')" class="mt-2" />
                             </div>
@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="mb-4"> {{-- Added margin-bottom --}}
-                            <x-input-label for="datums" :value="__('Date (YYYY.MM.DD)')" />
+                            <x-input-label for="datums" :value="__('Date')" />
                             <x-text-input id="datums" class="block mt-1 w-full" type="date" name="datums" :value="old('datums')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('datums')" class="mt-2" />
                         </div>
